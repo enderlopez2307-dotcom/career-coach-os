@@ -26,8 +26,9 @@ CareerCoachOS solo aparecen en una sesión que empieza dentro de su carpeta.
   `CareerCoachOS`. Si pones el modo de permisos en Accept edits, no tendrás que aprobar cada nota
   que guarda el Coach.
 - **VS Code:** File, Open Folder, elige `CareerCoachOS` y abre el panel de Claude Code.
-- **Terminal:** `cd ~/Documents/CareerCoachOS` (Windows: `cd $HOME\Documents\CareerCoachOS`) y
-  luego `claude`.
+- **Terminal:** `cd ~/Documents/CareerCoachOS` en Mac, o en Windows PowerShell
+  `cd (Join-Path ([Environment]::GetFolderPath('MyDocuments')) CareerCoachOS)` (así encuentra
+  Documentos aunque esté dentro de OneDrive), y luego `claude`.
 
 **3. Escribe `/onboard`.** Mira "Tu primera sesión" más abajo.
 

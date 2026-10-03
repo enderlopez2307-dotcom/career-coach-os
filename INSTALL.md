@@ -25,8 +25,9 @@ load in a session started inside its folder.
 - **Claude desktop app:** Code tab, new session, Local, Select folder, pick `CareerCoachOS`.
   Setting the permission mode to Accept edits saves you approving every note the Coach writes.
 - **VS Code:** File, Open Folder, pick `CareerCoachOS`, then open the Claude Code panel.
-- **Terminal:** `cd ~/Documents/CareerCoachOS` (Windows: `cd $HOME\Documents\CareerCoachOS`), then
-  `claude`.
+- **Terminal:** `cd ~/Documents/CareerCoachOS` on a Mac, or in Windows PowerShell
+  `cd (Join-Path ([Environment]::GetFolderPath('MyDocuments')) CareerCoachOS)` (that finds
+  Documents even when it lives inside OneDrive), then `claude`.
 
 **3. Type `/onboard`.** See "Your first session" below.
 

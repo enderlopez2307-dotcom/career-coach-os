@@ -9,7 +9,9 @@ an account or changes any setting.
 The default is a folder named `CareerCoachOS` inside the person's Documents folder:
 
 - macOS: `~/Documents/CareerCoachOS`
-- Windows: `%USERPROFILE%\Documents\CareerCoachOS`
+- Windows: `CareerCoachOS` inside the real Documents folder, which on many PCs lives inside
+  OneDrive. Get its path with PowerShell: `[Environment]::GetFolderPath('MyDocuments')`. Do not
+  assume `%USERPROFILE%\Documents`.
 
 If they asked for another place, use that. **If the folder already exists, stop and ask.** Never
 overwrite or merge into it: it may already hold their job search.
@@ -27,18 +29,23 @@ git clone https://github.com/enderlopez2307-dotcom/career-coach-os.git "<folder>
 **Without git, macOS:**
 
 ```
-curl -fL -o "$TMPDIR/cco.zip" https://github.com/enderlopez2307-dotcom/career-coach-os/archive/refs/heads/main.zip
-unzip -q "$TMPDIR/cco.zip" -d "$TMPDIR/cco"
-mv "$TMPDIR/cco/career-coach-os-main" "<folder>"
+T="$(mktemp -d)"
+curl -fL -o "$T/cco.zip" https://github.com/enderlopez2307-dotcom/career-coach-os/archive/refs/heads/main.zip
+unzip -q "$T/cco.zip" -d "$T"
+mv "$T/career-coach-os-main" "<folder>"
 ```
 
 **Without git, Windows PowerShell:**
 
 ```
-Invoke-WebRequest -Uri https://github.com/enderlopez2307-dotcom/career-coach-os/archive/refs/heads/main.zip -OutFile "$env:TEMP\cco.zip"
-Expand-Archive -Path "$env:TEMP\cco.zip" -DestinationPath "$env:TEMP\cco"
-Move-Item "$env:TEMP\cco\career-coach-os-main" "<folder>"
+$T = Join-Path $env:TEMP ("cco-" + [guid]::NewGuid())
+New-Item -ItemType Directory -Path $T | Out-Null
+Invoke-WebRequest -Uri https://github.com/enderlopez2307-dotcom/career-coach-os/archive/refs/heads/main.zip -OutFile "$T\cco.zip"
+Expand-Archive -Path "$T\cco.zip" -DestinationPath $T
+Move-Item "$T\career-coach-os-main" "<folder>"
 ```
+
+Each run uses a new temporary folder, so a second attempt never trips over the first.
 
 ## 3. Check
 
@@ -63,7 +70,8 @@ opened on the CareerCoachOS folder**. Give only the steps for the app they are u
   `CareerCoachOS`. Setting the permission mode to Accept edits saves them approving every note the
   Coach writes.
 - **VS Code:** File, Open Folder, pick `CareerCoachOS`, then open the Claude Code panel.
-- **Terminal:** go into the folder (`cd` followed by its path) and run `claude`.
+- **Terminal:** go into the folder (`cd` followed by the exact path you used in step 1) and run
+  `claude`.
 
 Then they type `/onboard`. The Coach interviews them about their career, one question at a time,
 in whatever language they write in.
