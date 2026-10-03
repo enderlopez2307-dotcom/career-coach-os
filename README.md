@@ -33,8 +33,10 @@ interview you about yours.
 
 - It never sends an email or a message. It writes drafts, and you decide.
 - It never clicks send, submit, post or apply. That click is always yours.
-- No agent has a tool that sends. The Gmail rule is built into what the agents are allowed to
-  touch, not just a rule they are asked to follow.
+- Nothing in this project adds a send tool. The unattended daily run loads no Gmail at all. In a
+  session you are in, the Gmail connection you linked may offer a send tool; Coach is told never
+  to use it, and you are there to see. `SECURITY.md` says exactly which protections are walls and
+  which are rules.
 
 You see every drafted message in `/review-queue`, one at a time, and approve, edit or kill each
 one.

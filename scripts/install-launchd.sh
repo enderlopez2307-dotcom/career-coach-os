@@ -4,8 +4,22 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 LABEL="com.careercoachos.daily"
 DEST="$HOME/Library/LaunchAgents/$LABEL.plist"
 
+# launchd starts jobs with a bare PATH that does not include where Claude
+# Code is installed, so record its full path now, while your shell can see it.
+CLAUDE_BIN="$(command -v claude || true)"
+if [[ -z "$CLAUDE_BIN" ]]; then
+  echo "Could not find the claude command. Install Claude Code first, then run this again."
+  exit 1
+fi
+CLAUDE_DIR="$(dirname "$CLAUDE_BIN")"
+case "$ROOT$CLAUDE_BIN" in
+  *"|"*|*"&"*) echo "The folder path contains | or &, move the folder and try again."; exit 1 ;;
+esac
+
 mkdir -p "$HOME/Library/LaunchAgents" "$ROOT/logs"
-sed "s|REPO_ROOT|$ROOT|g" "$ROOT/scripts/launchd/$LABEL.plist.template" > "$DEST"
+sed -e "s|REPO_ROOT|$ROOT|g" -e "s|CLAUDE_BIN_PATH|$CLAUDE_BIN|g" -e "s|CLAUDE_DIR|$CLAUDE_DIR|g" \
+  "$ROOT/scripts/launchd/$LABEL.plist.template" > "$DEST"
+plutil -lint "$DEST" >/dev/null || { echo "The generated schedule file is invalid: $DEST"; exit 1; }
 chmod 644 "$DEST"
 
 launchctl unload "$DEST" 2>/dev/null || true

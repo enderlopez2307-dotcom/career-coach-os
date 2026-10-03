@@ -2,12 +2,15 @@
 description: The mail check. Coach reads Gmail for recruiter replies, interview invites and rejections, updates the pipeline, and turns queued email drafts into real Gmail drafts. Interactive only, run it while you are in the session; the scheduler never reads mail. Never sends anything.
 ---
 
-**Agent:** `coach` — read `.claude/agents/coach.md` first.
+**Agent:** `coach`, run in this session directly, never as a subagent: the
+Gmail tools exist only in the main session. Read `.claude/agents/coach.md`
+first and work as Coach.
 
 ## Task
 1. **Find the window.** Read `vault/Automation/Run Log.md` and take the
-   time of the last row whose Trigger is `/jobs-mail`. No such row means
-   the last 7 days.
+   time of the last row whose Trigger is exactly `/jobs-mail` (a
+   successful check). Rows marked `/jobs-mail (failed)` do not count. No
+   successful row means the last 7 days.
 2. **Read Gmail since then**, read-only: search threads, open the ones that
    matter. Look for recruiter replies, interview invites or reschedules,
    rejections, and replies to anything in `vault/Outreach Drafts/_queue.md`.
@@ -22,12 +25,13 @@ description: The mail check. Coach reads Gmail for recruiter replies, interview 
    question to answer). Run `/voice-check`, then add it to the queue as
    `needs review`, `Channel: email`, and create it as a Gmail draft in the
    same thread.
-5. **Stage waiting email drafts.** For every queue entry with
-   `Channel: email` and no Gmail draft in `Draft ref` yet (the scheduled
+5. **Stage waiting email drafts.** For every queue entry whose `Status`
+   is `needs review` or `ready`, with `Channel: email` and no Gmail draft in `Draft ref` yet (the scheduled
    run cannot create them, it has no Gmail), create the Gmail draft now and
    write its link into `Draft ref`. Leave `Status` as it is.
 6. **Log and report.** Append a row to `vault/Automation/Run Log.md`
-   (`/jobs-mail`, what you found) and add a short "Mail" section to today's
+   (`/jobs-mail`, what you found; only a check that actually read mail
+   gets this Trigger) and add a short "Mail" section to today's
    `vault/Archive/Daily Scan/<today>.md`, creating it if missing.
 
 ## Rules
@@ -41,4 +45,5 @@ description: The mail check. Coach reads Gmail for recruiter replies, interview 
   present.
 - While working on mail, do not fetch web pages or search the web. Write
   only inside `vault/`.
-- If Gmail is not connected, say so in one line in the Run Log and stop.
+- If Gmail is not connected, log one row with Trigger `/jobs-mail (failed)`
+  and the reason, tell the candidate how to connect it, and stop.

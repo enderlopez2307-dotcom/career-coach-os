@@ -73,14 +73,17 @@ configuration, and no agent, command, or scheduled run is ever allowed to
 click a send / submit / post control in a browser session, no exceptions.
 Every drafted message is logged to `vault/Outreach Drafts/_queue.md` first,
 with its channel, sources, and a "before you send" line. `/review-queue` is
-where you see each one and decide: for email, it's already sitting in your
-Gmail Drafts, ready to open; for LinkedIn, staging into the compose box
+where you see each one and decide: for email, it's in your Gmail Drafts
+once `/jobs-mail` or `/review-queue` has created it; for LinkedIn, staging into the compose box
 happens right there in `/review-queue`, live, with you watching, never
 unattended. Either way, the click is always yours.
 
-**Two different strengths of guarantee, stated plainly.** The Gmail rule
-holds structurally — no send-capable tool is ever wired to any agent here,
-so there's nothing to click even if something tried. The LinkedIn rule holds
+**Two different strengths of guarantee, stated plainly.** In the
+scheduled run the Gmail rule is a wall: no connector loads at all, so there
+is no send tool to call. In a session you are in, it is a rule: the Gmail
+connector you linked can expose a send tool, and what stops it being used is
+Coach's instructions plus you being there to see it. This repo never adds a
+send tool, but it cannot remove one your account exposes. The LinkedIn rule holds
 behaviorally — the browser tool used to type into a compose box *could*
 technically click a send button, so that's fenced by a hard, repeated
 instruction plus the fact that LinkedIn staging only ever runs inside
@@ -167,23 +170,28 @@ own click.
 ## Scheduled runs
 
 `scripts/run-daily.sh` invokes `/jobs-daily` with
-`--tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"` plus
-`--strict-mcp-config`. `--tools` removes every other built-in tool, so Bash
-and git do not exist in that session or any subagent it spawns, and
-`--strict-mcp-config` loads no MCP servers, so no Gmail, browser, or other
-connector tool is reachable unattended. That is the outermost guardrail and
-it holds even if a command file is ever edited carelessly.
+`--tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"`,
+`--strict-mcp-config`, `--permission-mode dontAsk` and
+`--allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)"`.
 
-Do not swap `--tools` back to `--allowedTools`. The script also passes
-`--dangerously-skip-permissions`, and `--allowedTools` only pre-approves
-tools without removing any, so that combination leaves Bash and every
-connector tool (Gmail send included) loaded and auto-approved while the run
-reads untrusted web pages. That is exactly the setup this design avoids.
-The unattended run therefore cannot read Gmail, by design: mail is read
-only by `/jobs-mail`, in a session you are in.
+- `--tools` removes every other built-in tool, so Bash does not exist in
+  that session or any subagent it spawns.
+- `--strict-mcp-config` loads no MCP servers. A headless run otherwise loads
+  every connector linked to the account, whatever `--tools` says.
+- `dontAsk` denies every call not on the allowlist, in subagents too. Reads
+  (and Grep) stay inside this folder; writes stay inside `vault/` (`Edit`
+  rules cover `Write`). A poisoned job page therefore cannot rewrite
+  `.git/config`, a git hook, this script, `CLAUDE.md` or a command file.
+
+Never go back to `--dangerously-skip-permissions`: it approves every write
+anywhere on disk, and a write to `.git/config` is enough to make the git
+step run a command. The git step itself runs with hooks and fsmonitor
+switched off for the same reason. The unattended run cannot read Gmail, by
+design: mail is read only by `/jobs-mail`, in a session you are in.
 
 macOS has no `timeout` command, so the run is capped at
-`CAREERCOACHOS_TIMEOUT_SEC` (default 1800) with perl's `alarm`.
+`CAREERCOACHOS_TIMEOUT_SEC` (whole seconds, default 1800) by a perl wrapper
+that stops the whole process group.
 By default the script does not commit or push. See `README.md` and
 `SECURITY.md` for setup and the optional private-repo git sync.
 

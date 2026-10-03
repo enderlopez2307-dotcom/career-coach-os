@@ -13,13 +13,15 @@ Everything here can run without you except two things, which never do.
 
 - Coach may create a Gmail draft and may stage a LinkedIn message in a browser compose box so it is
   ready for you.
-- No agent has a tool that sends. No agent, command or scheduled run is allowed to click a send,
-  submit or post control in a browser, in any mode.
+- This project adds no send tool. No agent, command or scheduled run is allowed to send, or to
+  click a send, submit or post control in a browser, in any mode.
 - Every draft is logged first in `vault/Outreach Drafts/_queue.md`. `/review-queue` shows each one
   and you approve, edit or kill it.
 
-The two halves of this door are different strengths of guarantee. The Gmail rule is structural:
-no send tool is wired to any agent, so there is nothing to click. The LinkedIn rule is
+These are different strengths of guarantee. In the scheduled run the Gmail rule is structural:
+no connector loads, so there is no send tool to call. In a session you are in, it is behavioral:
+the Gmail connection you linked may expose a send tool, and what stops it is Coach's instructions
+plus you being present. This project cannot remove a tool your own account exposes. The LinkedIn rule is
 behavioral: the browser tool that types into a compose box could in principle click a send
 button, so it is fenced by repeated hard instructions and by the fact that LinkedIn staging runs
 only inside `/review-queue`, interactively, with you watching. One is a wall. The other is a rule
@@ -42,12 +44,9 @@ it as suspicious and ignores it.
 
 Scout and Signal are the two agents that touch untrusted web content, so they get the smallest
 set of tools: Read, Write, Edit, Glob, Grep, WebFetch and WebSearch. No Bash, no Gmail, no
-browser, no send. If a hostile job posting did fool one of them, there would be nothing dangerous
-within reach to act with. Coach, which can read Gmail and also has web access, has no Bash and no
-send tool either.
-
-This is a structural limit and it works even if the model is fooled. It is the main protection,
-more than any instruction in a prompt.
+browser, no send. In the scheduled run, Claude Code itself also confines what those tools can
+touch (next section), so a fooled agent cannot reach anything dangerous. In a session you are in,
+the same agents have the same tools, and you are the one approving anything unusual.
 
 ## The scheduler guardrail
 
@@ -57,24 +56,32 @@ The optional daily scheduler (`scripts/run-daily.sh`, installed on macOS by
 ```
 --tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"
 --strict-mcp-config
---dangerously-skip-permissions
+--permission-mode dontAsk
+--allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)"
 ```
 
-- `--tools` is an allowlist that removes every other built-in tool. Bash and git do not exist in
-  that session or in any subagent it starts.
-- `--strict-mcp-config` loads no connectors, so no Gmail, browser or other external tool is
-  reachable in an unattended run. This also means the scheduled run cannot read your Gmail, and
-  that is a choice, not a gap: mail is read only by `/jobs-mail`, in a session you are in. Nobody
-  should have an agent reading their inbox while they are away.
-- `--dangerously-skip-permissions` is needed so the run is not blocked waiting for a click that
-  nobody is there to give. That flag is safe here only because the two options above have already
-  taken the dangerous tools away.
+- `--tools` removes every other built-in tool. Bash does not exist in that session or in any
+  subagent it starts.
+- `--strict-mcp-config` loads no connectors. Without it, an unattended run loads every connector
+  linked to your Claude account (mail, calendar, cloud consoles), whatever `--tools` says. With
+  it, there is no Gmail, no browser and nothing that sends. The scheduled run never reads your
+  mail, and that is a choice, not a gap: `/jobs-mail` reads it only in a session you are in.
+- `--permission-mode dontAsk` with that allowlist denies everything not listed, in subagents too.
+  Reads and searches stay inside the project folder. Writes stay inside `vault/`. A hostile job
+  page cannot get an agent to read files elsewhere on your computer, or to rewrite `.git/config`,
+  a git hook, the scheduler script, `CLAUDE.md` or a command file.
+- The optional git step runs with git hooks and fsmonitor switched off, so nothing written into
+  the folder can make git run a command.
 
-**Never replace `--tools` with `--allowedTools`.** The two sound alike and behave very
-differently. `--allowedTools` only pre-approves tools. It does not remove any. Combined with
-`--dangerously-skip-permissions`, it would leave Bash and every connected tool, Gmail send
-included, loaded and auto approved while the run reads untrusted web pages. That is the exact
-setup this design exists to avoid. If you edit the script, keep `--tools` and `--strict-mcp-config`.
+**Never switch to `--dangerously-skip-permissions`.** It approves every call, including writes
+anywhere on your disk. A single write to `.git/config` is enough to make a later `git status`
+run any command. **Never replace `--tools` with `--allowedTools` alone either:** `--allowedTools`
+only pre-approves tools and removes none.
+
+**What the allowlist does not stop.** The scheduled run can read your profile and notes (it needs
+them to score roles) and can fetch web pages. A page that fools an agent could in principle get it
+to put some of that into a web address it fetches. Keep secrets, passwords and anything you would
+not want leaked out of `config/` and `vault/`.
 
 ## Your data
 
@@ -86,9 +93,10 @@ Claude Code itself sends your prompts and the files it reads to Anthropic under 
 
 - No one has attacked this design on purpose. Treat it as careful, not proven.
 - The LinkedIn staging step relies on instructions, as described above.
-- A connected Gmail account may expose more tools than Coach is told to use. The instructions
-  forbid anything beyond reading and creating a draft, and no send tool is added by this project.
-  Consider connecting a Gmail connection with the fewest permissions it offers.
+- In a session you are in, a connected Gmail account may expose more tools than Coach is told to
+  use, including send. The instructions forbid anything beyond reading and creating a draft, and
+  you are present, but that is a rule, not a wall. While `/jobs-mail` runs, read what it proposes
+  before approving anything.
 - You are the last check. Read every draft before you send it and verify every posting before you
   apply.
 

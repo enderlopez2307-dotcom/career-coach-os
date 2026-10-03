@@ -29,8 +29,8 @@ first.
    unverified role never reaches the queue, no matter how well it scored
    on the first pass.
 4. **Consolidate** into `vault/Archive/Daily Scan/<today>.md`: market
-   signals, new roles with human paths, pipeline changes, replies seen,
-   what's now queued.
+   signals, new roles with human paths, pipeline changes, what's now
+   queued. No mail section: this run does not read mail.
 5. **One Recruiter's read**, covering market, pipeline, the queue, and the
    single most important move today.
 
