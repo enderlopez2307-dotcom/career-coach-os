@@ -10,7 +10,9 @@ first and work as Coach.
 1. **Find the window.** Read `state/jobs-mail-last.txt`, a single ISO 8601
    timestamp with time and timezone (for example
    `2026-10-03T18:05:00+01:00`) written by the last successful check. No
-   file means the last 7 days. Only this command writes that file; the
+   file means the last 7 days. Note the current time now, before searching:
+   that start time, not the finish time, is what step 5 saves, so mail that
+   lands while you work is picked up next time. Only this command writes that file; the
    scheduled run cannot, so nothing it reads can move your window.
 2. **Read Gmail since then**, read-only: search with `after:<unix seconds>`
    for that timestamp and open the threads that matter. Look for recruiter
@@ -32,7 +34,8 @@ first and work as Coach.
 5. **Log and report.** Append a row to `vault/Automation/Run Log.md`
    (`/jobs-mail`, what you found), add a short "Mail" section to today's
    `vault/Archive/Daily Scan/<today>.md` (create it if missing), and only
-   then write the current time to `state/jobs-mail-last.txt`. End by telling
+   then write the start time you noted in step 1 to
+   `state/jobs-mail-last.txt`. End by telling
    the candidate how many replies are waiting in `/review-queue`.
 
 ## Rules

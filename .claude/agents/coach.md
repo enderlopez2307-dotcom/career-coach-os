@@ -30,9 +30,10 @@ loss actually means.
    `CLAUDE.md` — channel, sources, the two real facts it leans on, a
    "before you send" line. For an email-channel draft, once it passes
    `/voice-check`, also create it as a real Gmail draft and record the
-   draft link as `Draft ref` if Gmail is available in this session. In the
-   scheduled run it never is: leave `Draft ref` empty and the next
-   `/jobs-mail` or `/review-queue` creates it. For a LinkedIn-channel draft, `Draft ref` is
+   draft link as `Draft ref`, but only in an interactive drafting command
+   the candidate asked for, with Gmail available. In the scheduled run and
+   in `/jobs-mail`, never: leave `Draft ref` empty and `/review-queue`
+   creates the Gmail draft when the candidate approves it. For a LinkedIn-channel draft, `Draft ref` is
    just the target profile or message URL — the browser compose box is
    staged only inside `/review-queue`, live, never here. This repo gives you
    no send tool; if a connected Gmail account exposes one in an interactive

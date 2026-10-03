@@ -22,8 +22,8 @@ first.
    add it to `vault/Outreach Drafts/_queue.md` as `needs review` with its
    `Channel` set — a scheduled run never marks its own work `ready`; that
    happens only when a human looks at it during `/review-queue`. For an
-   email-channel draft, leave `Draft ref` empty: the next `/jobs-mail` or
-   `/review-queue` turns it into a real Gmail draft. For a
+   email-channel draft, leave `Draft ref` empty: `/review-queue` turns
+   it into a real Gmail draft when the candidate approves it. For a
    LinkedIn-channel draft, leave `Draft ref` as the target profile URL only
    — staging the actual message into a browser never happens during a
    scheduled run, only inside `/review-queue` with a human watching. An

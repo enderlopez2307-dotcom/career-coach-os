@@ -76,7 +76,7 @@ click a send / submit / post control in a browser session, no exceptions.
 Every drafted message is logged to `vault/Outreach Drafts/_queue.md` first,
 with its channel, sources, and a "before you send" line. `/review-queue` is
 where you see each one and decide: for email, it's in your Gmail Drafts
-once `/jobs-mail` or `/review-queue` has created it; for LinkedIn, staging into the compose box
+once `/review-queue` has created it on your approval; for LinkedIn, staging into the compose box
 happens right there in `/review-queue`, live, with you watching, never
 unattended. Either way, the click is always yours.
 
@@ -189,9 +189,10 @@ own click.
   `.claude/` file, so a poisoned page can neither lift a token nor plant
   instructions that a later interactive session would load as trusted.
 
-After the run the script refuses to commit, and logs it, if any
-`CLAUDE*.md`, `.claude`, `.git`, `.gitmodules` or `.gitattributes` turns up
-in `vault/`. Git runs with hooks and fsmonitor switched off and commits
+After the run, any `CLAUDE*.md`, `.claude`, `.git`, `.gitmodules` or
+`.gitattributes` found in `vault/`, in any letter case, is moved to
+`logs/quarantine-<time>/` under a harmless name, logged, and the run stops
+without committing. Git runs with hooks and fsmonitor switched off and commits
 `vault/` only. Never go back to `--dangerously-skip-permissions`: it
 approves every write anywhere on disk. The unattended run cannot read
 Gmail, by design: mail is read only by `/jobs-mail`, in a session you are
@@ -199,7 +200,8 @@ in.
 
 macOS has no `timeout` command, so the run is capped at
 `CAREERCOACHOS_TIMEOUT_SEC` (whole seconds, default 1800) by a perl wrapper
-that stops the whole process group, also on Ctrl-C or `launchctl` stop.
+that stops the whole process group, also on Ctrl-C or `launchctl` stop
+(the script forwards the signal to the wrapper).
 By default the script does not commit or push. See `README.md` and
 `SECURITY.md` for setup and the optional private-repo git sync.
 

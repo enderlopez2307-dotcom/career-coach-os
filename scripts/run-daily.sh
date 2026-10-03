@@ -25,8 +25,10 @@ fi
 # run gets its own process group, and when the cap is hit the whole group is
 # stopped (TERM, then KILL after 10 s), so no helper process is left behind.
 # Exit 142 means the cap was hit.
+# Always start it in the background with & : it execs, so the background
+# job's PID is the wrapper itself and a forwarded signal reaches it.
 run_capped() {
-  perl -e '
+  exec perl -e '
     my $t = shift;
     my $pid = fork() // die "fork failed: $!";
     if ($pid == 0) { setpgrp(0, 0); exec @ARGV or die "exec failed: $!"; }
@@ -69,8 +71,14 @@ run_capped "$CLAUDE_BIN" -p "/jobs-daily" \
   --setting-sources project \
   --allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)" \
   --disallowedTools "Read(.git/**),Read(logs/**),Read(.claude/settings*.json),Read(**/.env*),Edit(**/CLAUDE.md),Edit(**/CLAUDE.local.md),Edit(**/.claude/**)" \
-  < /dev/null >> "$LOG" 2>&1
-ec=$?
+  < /dev/null >> "$LOG" 2>&1 &
+CAP=$!
+# launchctl stop signals this bash script, not the wrapper; pass it on so the
+# wrapper can stop claude's whole process group before launchd gives up.
+trap 'kill -TERM "$CAP" 2>/dev/null' TERM INT HUP
+wait "$CAP"; ec=$?
+while kill -0 "$CAP" 2>/dev/null; do wait "$CAP"; ec=$?; done
+trap - TERM INT HUP
 set -e
 
 if [[ "$ec" -ne 0 ]]; then
@@ -80,12 +88,22 @@ fi
 
 # Mail is never read unattended. /jobs-mail runs only in a session you are in.
 
-# Belt and braces: if an instruction file or a .claude folder appeared in
-# vault/ anyway, stop before git or any later session can pick it up.
-SUSPECT="$(find "$ROOT/vault" \( -iname 'CLAUDE*.md' -o -name '.claude' -o -name '.git' -o -name '.gitmodules' -o -name '.gitattributes' \) -print 2>/dev/null || true)"
-if [[ -n "$SUSPECT" ]]; then
-  echo "$(date -Iseconds)  STOPPED: unexpected instruction or git files in vault/, not committed. Check and delete them yourself:" >> "$LOG"
-  echo "$SUSPECT" >> "$LOG"
+# Belt and braces: if an instruction file, a .claude folder or git plumbing
+# turned up in vault/ anyway (any letter case: Mac disks treat .Claude and
+# .claude as the same folder, while the deny rules above match case
+# exactly), move it out of vault/ under a harmless name, log it, and stop
+# before git or any later session can load it.
+QDIR="$ROOT/logs/quarantine-$(date +%Y%m%d-%H%M%S)"
+FOUND=0
+while IFS= read -r -d '' f; do
+  [[ -e "$f" ]] || continue  # already moved with a parent folder
+  mkdir -p "$QDIR"
+  mv "$f" "$QDIR/$(printf '%s' "${f#"$ROOT"/}" | tr '/' '_').quarantined"
+  echo "$(date -Iseconds)  quarantined: ${f#"$ROOT"/}" >> "$LOG"
+  FOUND=1
+done < <(find "$ROOT/vault" \( -iname 'CLAUDE*.md' -o -iname '.claude' -o -iname '.git' -o -iname '.gitmodules' -o -iname '.gitattributes' \) -print0 2>/dev/null)
+if [[ "$FOUND" == "1" ]]; then
+  echo "$(date -Iseconds)  STOPPED: unexpected instruction or git files were in vault/, moved to $QDIR, nothing committed" >> "$LOG"
   exit 3
 fi
 

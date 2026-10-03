@@ -76,8 +76,9 @@ The optional daily scheduler (`scripts/run-daily.sh`, installed on macOS by
   token could sit, and blocks writing any `CLAUDE.md`, `CLAUDE.local.md` or `.claude/` file. A
   hostile job page therefore cannot rewrite `.git/config`, a git hook, the scheduler, a command
   file, or plant instructions in `vault/` that a later session of yours would load as trusted.
-- After the run, the script stops before git if any `CLAUDE*.md`, `.claude`, `.git`,
-  `.gitmodules` or `.gitattributes` appears in `vault/`. The optional git step runs with git hooks
+- After the run, any `CLAUDE*.md`, `.claude`, `.git`, `.gitmodules` or `.gitattributes` found in
+  `vault/`, in any letter case, is moved to `logs/quarantine-<time>/` under a harmless name, and
+  the run stops without committing. Check that folder if your log says STOPPED. The optional git step runs with git hooks
   and fsmonitor switched off and commits `vault/` only.
 
 **Never switch to `--dangerously-skip-permissions`.** It approves every call, including writes
