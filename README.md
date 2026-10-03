@@ -4,12 +4,13 @@ A job search run by three Claude Code agents that share one folder of notes on y
 Your CV, your LinkedIn, interview prep, job scouting and outreach drafts, all in one place, all
 yours.
 
-It is built to be installed by **your own AI agent**, or by you in about ten minutes. Give an agent
-this repository and one sentence:
+It is built to be installed by **your own AI agent**, in whatever app you use Claude Code in: the
+Claude desktop app, VS Code or a terminal. Open a Claude Code session and send one sentence:
 
-> Clone this repository and follow `INSTALL.md` to set up CareerCoachOS for me.
+> Install CareerCoachOS for me: read https://raw.githubusercontent.com/enderlopez2307-dotcom/career-coach-os/main/AGENT_INSTALL.md and follow it.
 
-Spanish speaker? Read `INSTALL.es.md`.
+Then open a **fresh session on the new CareerCoachOS folder** and type `/onboard`. Full steps,
+including doing it by hand, are in `INSTALL.md`. En español: `INSTALL.es.md`.
 
 ## The three agents
 
@@ -44,26 +45,19 @@ one.
 ## Requirements
 
 - A Claude subscription that includes Claude Code (Pro or higher).
-- Claude Code installed.
+- Claude Code in any app: the Claude desktop app (https://claude.com/download, Code tab), the VS
+  Code extension, or the terminal.
 - macOS if you want the optional daily scheduler. Everything else works anywhere Claude Code runs.
 
 ## Quick start
 
-```bash
-git clone https://github.com/enderlopez2307-dotcom/career-coach-os.git CareerCoachOS
-cd CareerCoachOS
-claude
-```
-
-Then, inside Claude Code, run this once:
-
-```
-/onboard
-```
-
-It is a real conversation about your career, your targets and a few genuine wins. It writes four
-private files under `config/`. After that, use the daily commands below. Full steps are in
-`INSTALL.md`.
+1. In any Claude Code session, send the sentence above. Your agent installs CareerCoachOS into
+   `Documents/CareerCoachOS`.
+2. Open a fresh session on that folder. In the desktop app: Code tab, Local, Select folder. In VS
+   Code: File, Open Folder. In a terminal: `cd` into it and run `claude`. The commands only load in
+   a session started inside the folder.
+3. Type `/onboard`. It is a real conversation about your career, your targets and a few genuine
+   wins, and it writes four private files under `config/`. After that, use the commands below.
 
 ## Commands
 

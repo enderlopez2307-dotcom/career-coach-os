@@ -1,83 +1,71 @@
 # Install CareerCoachOS
 
-This guide is written for someone who has never used a terminal. A terminal is a window where you
-type a command and press Return, instead of clicking.
-
-**Hand this to your agent.** If you already use an AI agent that can run commands, give it this
-one sentence and skip the rest:
-
-> Clone this repository and follow `INSTALL.md` to set up CareerCoachOS for me, then stop and tell
-> me to run `/onboard`.
+Works wherever you use Claude Code: the Claude desktop app, VS Code, or a terminal.
 
 ## What you need first
 
-- A Claude subscription that includes Claude Code (Pro or higher).
-- A computer. macOS is needed only for the optional daily scheduler.
+- A Claude plan that includes Claude Code (Pro or higher). The free plan does not.
+- Claude Code in any app. If you have none yet, the simplest is the **Claude desktop app**: download
+  it from https://claude.com/download, sign in, and open the **Code** tab. It already includes
+  Claude Code.
 
-## Steps
+## The easy way: ask your agent
 
-1. **Install Claude Code.** Go to the official Claude Code setup page at
-   https://code.claude.com/docs/en/setup and follow the steps for your computer. When
-   it is done, you can type `claude` in a terminal.
+**1. Paste one sentence.** Open a Claude Code session anywhere (in the desktop app: Code tab,
+Local, Select folder, and pick your Documents folder) and send:
 
-2. **Download CareerCoachOS.** Pick one of these.
+> Install CareerCoachOS for me: read https://raw.githubusercontent.com/enderlopez2307-dotcom/career-coach-os/main/AGENT_INSTALL.md and follow it.
 
-   *Option A, Download ZIP.* On the repository page, click the green **Code** button, then
-   **Download ZIP**. Open the downloaded file so it unpacks into a folder. Move that folder
-   somewhere you will remember, such as your Documents folder, and rename it from
-   `career-coach-os-main` to `CareerCoachOS`.
+The agent downloads CareerCoachOS into a new `CareerCoachOS` folder in your Documents and tells you
+what to do next. It runs no scripts and connects nothing.
 
-   *Option B, git clone.* If you already use Git, run this in a terminal:
+**2. Open a fresh session on the new folder.** This step matters: CareerCoachOS's commands only
+load in a session started inside its folder.
 
-   ```bash
-   git clone https://github.com/enderlopez2307-dotcom/career-coach-os.git CareerCoachOS
-   ```
+- **Claude desktop app:** Code tab, new session, Local, Select folder, pick `CareerCoachOS`.
+  Setting the permission mode to Accept edits saves you approving every note the Coach writes.
+- **VS Code:** File, Open Folder, pick `CareerCoachOS`, then open the Claude Code panel.
+- **Terminal:** `cd ~/Documents/CareerCoachOS` (Windows: `cd $HOME\Documents\CareerCoachOS`), then
+  `claude`.
 
-3. **Open a terminal in that folder.**
-   - On a Mac, open the Terminal app, type `cd ` (with a space after it), drag the CareerCoachOS
-     folder into the Terminal window, and press Return.
-   - Or type the path yourself, for example `cd ~/Documents/CareerCoachOS`.
+**3. Type `/onboard`.** See "Your first session" below.
 
-4. **Start Claude Code.** Type this and press Return. The first time, it asks you to sign in with
-   your Claude account.
+## By hand, without an agent
 
-   ```bash
-   claude
-   ```
+1. On the repository page, click the green **Code** button, then **Download ZIP**.
+2. Unpack it, rename the folder from `career-coach-os-main` to `CareerCoachOS`, and move it into
+   your Documents folder.
+3. Open a fresh session on that folder, as in step 2 above, and type `/onboard`.
 
-5. **Run the setup conversation, once.** Inside Claude Code, type this and press Return:
+## Your first session
 
-   ```
-   /onboard
-   ```
+`/onboard` is a real conversation. Coach interviews you, one question at a time: your current work,
+the roles you want, the salary below which a role is not worth discussing, where you will and will
+not work, companies to avoid, target companies, a few real wins with numbers, and a paragraph of
+your own writing so drafts sound like you. It writes four private files in `config/`. Answer
+honestly. It will not invent answers you did not give. You can write in any language; commands
+stay in English.
 
-   Coach interviews you, one question at a time: your current work, the roles you want, the
-   salary below which a role is not worth discussing, where you will and will not work, companies
-   to avoid, target companies, a few real wins with numbers, and a paragraph of your own writing
-   so drafts sound like you. It writes four private files in `config/`. Answer honestly. It will
-   not invent answers you did not give.
+After that, the daily commands:
 
-6. **Use the daily commands.**
+```
+/whats-next      a ranked menu of the best next moves
+/jobs-daily      scan the market and draft into your review queue
+/jobs-mail       check Gmail for replies and invites (only while you are there)
+/checkin         record what happened and refresh your dashboard
+/review-queue    look at each drafted message, approve it or kill it
+```
 
-   ```
-   /jobs-daily      scan the market and draft into your review queue
-   /jobs-mail       check Gmail for replies and invites (only while you are there)
-   /whats-next      a ranked menu of the best next moves
-   /checkin         record what happened and refresh your dashboard
-   /review-queue    look at each drafted message, approve it or kill it
-   ```
-
-   Before you apply anywhere, run `/warm-path <Company>`. Before an interview, run `/jobs-prep`,
-   then `/mock-interview`.
+Before you apply anywhere, run `/warm-path <Company>`. Before an interview, run `/jobs-prep`, then
+`/mock-interview`.
 
 ## Things to know
 
 - Nothing is ever sent for you. Approved messages wait in Gmail Drafts or in the LinkedIn message
   box. You press send.
 - Your job search stays in this folder. It is ignored by Git by default.
-- To use Gmail features, connect Gmail inside Claude Code when it offers. Everything else works
+- To use `/jobs-mail`, connect Gmail in your Claude app's connector settings. Everything else works
   without it.
-- The daily scheduler is optional and Mac only. Read `SECURITY.md` first. To turn it on, run
-  `bash scripts/install-launchd.sh` in the folder.
-- Stuck? Ask Claude Code in plain words, for example "I downloaded the ZIP, what do I type
-  next?"
+- The daily scheduler is optional, Mac only, and runs from a terminal. Read `SECURITY.md` first.
+  To turn it on, run `bash scripts/install-launchd.sh` inside the folder.
+- Stuck? Ask Claude in plain words, for example "I downloaded the folder, what do I do next?"

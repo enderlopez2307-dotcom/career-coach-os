@@ -1,87 +1,74 @@
 # Instalar CareerCoachOS
 
-Esta guía es para alguien que nunca ha usado una terminal. Una terminal es una ventana donde
-escribes un comando y presionas Enter, en lugar de hacer clic.
-
-**Pásale esto a tu agente.** Si ya usas un agente de IA que puede ejecutar comandos, dale esta
-frase y sáltate el resto:
-
-> Clone this repository and follow `INSTALL.md` to set up CareerCoachOS for me, then stop and tell
-> me to run `/onboard`.
+Funciona donde uses Claude Code: la app de escritorio de Claude, VS Code o una terminal.
 
 ## Lo que necesitas antes
 
-- Una suscripción a Claude que incluya Claude Code (Pro o superior).
-- Un computador. Solo necesitas un Mac si quieres el programador diario opcional.
+- Un plan de Claude que incluya Claude Code (Pro o superior). El plan gratis no lo incluye.
+- Claude Code en cualquier app. Si todavía no tienes ninguna, lo más fácil es la **app de
+  escritorio de Claude**: descárgala en https://claude.com/download, inicia sesión y abre la
+  pestaña **Code**. Ya trae Claude Code incluido.
 
-## Pasos
+## La forma fácil: pídeselo a tu agente
 
-1. **Instala Claude Code.** Entra a la página oficial de instalación de Claude Code,
-   https://code.claude.com/docs/en/setup, y sigue los pasos para tu computador. Cuando
-   termines, podrás escribir `claude` en una terminal.
+**1. Pega una frase.** Abre una sesión de Claude Code en cualquier carpeta (en la app de
+escritorio: pestaña Code, Local, Select folder, y elige tu carpeta de Documentos) y envía:
 
-2. **Descarga CareerCoachOS.** Elige una de estas dos formas.
+> Instala CareerCoachOS por mí: lee https://raw.githubusercontent.com/enderlopez2307-dotcom/career-coach-os/main/AGENT_INSTALL.md y sigue sus pasos.
 
-   *Opción A, Download ZIP.* En la página del repositorio, haz clic en el botón verde **Code** y
-   luego en **Download ZIP**. Abre el archivo descargado para que se descomprima en una carpeta.
-   Mueve esa carpeta a un lugar que recuerdes, por ejemplo tu carpeta de Documentos, y
-   cámbiale el nombre de `career-coach-os-main` a `CareerCoachOS`.
+El agente descarga CareerCoachOS en una carpeta nueva llamada `CareerCoachOS` dentro de tus
+Documentos y te dice qué hacer después. No ejecuta ningún programa ni conecta nada.
 
-   *Opción B, git clone.* Si ya usas Git, ejecuta esto en una terminal:
+**2. Abre una sesión nueva en esa carpeta.** Este paso es importante: los comandos de
+CareerCoachOS solo aparecen en una sesión que empieza dentro de su carpeta.
 
-   ```bash
-   git clone https://github.com/enderlopez2307-dotcom/career-coach-os.git CareerCoachOS
-   ```
+- **App de escritorio de Claude:** pestaña Code, sesión nueva, Local, Select folder, elige
+  `CareerCoachOS`. Si pones el modo de permisos en Accept edits, no tendrás que aprobar cada nota
+  que guarda el Coach.
+- **VS Code:** File, Open Folder, elige `CareerCoachOS` y abre el panel de Claude Code.
+- **Terminal:** `cd ~/Documents/CareerCoachOS` (Windows: `cd $HOME\Documents\CareerCoachOS`) y
+  luego `claude`.
 
-3. **Abre una terminal en esa carpeta.**
-   - En un Mac, abre la app Terminal, escribe `cd ` (con un espacio al final), arrastra la
-     carpeta CareerCoachOS dentro de la ventana de Terminal y presiona Enter.
-   - O escribe la ruta directamente, por ejemplo `cd ~/Documents/CareerCoachOS`.
+**3. Escribe `/onboard`.** Mira "Tu primera sesión" más abajo.
 
-4. **Inicia Claude Code.** Escribe esto y presiona Enter. La primera vez te pedirá iniciar sesión
-   con tu cuenta de Claude.
+## A mano, sin agente
 
-   ```bash
-   claude
-   ```
+1. En la página del repositorio, haz clic en el botón verde **Code** y luego en **Download ZIP**.
+2. Descomprímelo, cámbiale el nombre a la carpeta de `career-coach-os-main` a `CareerCoachOS` y
+   muévela a tu carpeta de Documentos.
+3. Abre una sesión nueva en esa carpeta, como en el paso 2 de arriba, y escribe `/onboard`.
 
-5. **Haz la conversación de configuración, una sola vez.** Dentro de Claude Code, escribe esto y
-   presiona Enter:
+## Tu primera sesión
 
-   ```
-   /onboard
-   ```
+`/onboard` es una conversación de verdad. El Coach te entrevista, una pregunta a la vez: tu
+trabajo actual, los cargos que quieres, el sueldo mínimo por debajo del cual un trabajo no vale la
+pena, dónde sí y dónde no quieres trabajar, empresas que quieres evitar, empresas que te
+interesan, algunos logros reales con números y un párrafo escrito por ti para que los borradores
+suenen como tú. Guarda cuatro archivos privados en `config/`. Responde con sinceridad. No inventa
+respuestas que tú no diste. Puedes escribir en español; los comandos se escriben en inglés.
 
-   Coach te hace una entrevista, una pregunta a la vez: tu trabajo actual, los cargos que
-   quieres, el sueldo mínimo por debajo del cual un trabajo no vale la pena, dónde sí y dónde no
-   quieres trabajar, empresas que quieres evitar, empresas que te interesan, algunos
-   logros reales con números y un párrafo escrito por ti para que los borradores suenen como tú.
-   Guarda cuatro archivos privados en `config/`. Responde con sinceridad. No inventa respuestas
-   que tú no diste.
+Después, los comandos de todos los días:
 
-6. **Usa los comandos diarios.**
+```
+/whats-next      un menú ordenado con los mejores próximos pasos
+/jobs-daily      busca en el mercado y deja borradores en tu cola de revisión
+/jobs-mail       revisa Gmail buscando respuestas y entrevistas (solo contigo presente)
+/checkin         registra lo que pasó y actualiza tu panel
+/review-queue    mira cada mensaje redactado, apruébalo o descártalo
+```
 
-   ```
-   /jobs-daily      busca en el mercado y deja borradores en tu cola de revisión
-   /jobs-mail       revisa Gmail buscando respuestas y entrevistas (solo contigo presente)
-   /whats-next      un menú ordenado con los mejores próximos pasos
-   /checkin         registra lo que pasó y actualiza tu panel
-   /review-queue    mira cada mensaje redactado, apruébalo o descártalo
-   ```
-
-   Antes de postular a cualquier lugar, ejecuta `/warm-path <Empresa>`. Antes de una entrevista,
-   ejecuta `/jobs-prep` y luego `/mock-interview`.
+Antes de postular a cualquier lugar, ejecuta `/warm-path <Empresa>`. Antes de una entrevista,
+ejecuta `/jobs-prep` y luego `/mock-interview`.
 
 ## Cosas importantes
 
-- Nunca se envía nada por ti. Los mensajes aprobados quedan esperando en los borradores de Gmail
-  o en la caja de mensajes de LinkedIn. Tú presionas enviar.
+- Nunca se envía nada por ti. Los mensajes aprobados quedan esperando en los borradores de Gmail o
+  en la caja de mensajes de LinkedIn. Tú presionas enviar.
 - Tu búsqueda de trabajo se queda en esta carpeta. Git la ignora por defecto.
-- Para usar las funciones de Gmail, conecta Gmail dentro de Claude Code cuando te lo ofrezca. Todo
-  lo demás funciona sin eso.
-- El programador diario es opcional y solo funciona en Mac. Lee `SECURITY.md` primero. Para
-  activarlo, ejecuta `bash scripts/install-launchd.sh` dentro de la carpeta.
-- Los nombres de los comandos se escriben en inglés, tal como aparecen aquí. Después de
-  `/onboard`, puedes hablar con Claude en español y te responderá en español.
-- Si te trabas, pregúntale a Claude Code con tus propias palabras, por ejemplo: "descargué el
-  ZIP, ¿qué escribo ahora?"
+- Para usar `/jobs-mail`, conecta Gmail en los conectores de tu app de Claude. Todo lo demás
+  funciona sin eso.
+- El programador diario es opcional, solo funciona en Mac y se activa desde una terminal. Lee
+  `SECURITY.md` primero. Para activarlo, ejecuta `bash scripts/install-launchd.sh` dentro de la
+  carpeta.
+- Si te trabas, pregúntale a Claude con tus propias palabras, por ejemplo: "ya descargué la
+  carpeta, ¿qué hago ahora?"
