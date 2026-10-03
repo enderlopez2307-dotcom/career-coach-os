@@ -91,14 +91,18 @@ fi
 # Belt and braces: if an instruction file, a .claude folder or git plumbing
 # turned up in vault/ anyway (any letter case: Mac disks treat .Claude and
 # .claude as the same folder, while the deny rules above match case
-# exactly), move it out of vault/ under a harmless name, log it, and stop
+# exactly), pack it out of vault/ into a sealed archive, log it, and stop
 # before git or any later session can load it.
 QDIR="$ROOT/logs/quarantine-$(date +%Y%m%d-%H%M%S)"
 FOUND=0
 while IFS= read -r -d '' f; do
   [[ -e "$f" ]] || continue  # already moved with a parent folder
   mkdir -p "$QDIR"
-  mv "$f" "$QDIR/$(printf '%s' "${f#"$ROOT"/}" | tr '/' '_').quarantined"
+  # Pack it into a single archive so no file inside keeps a name Claude Code
+  # would load (a CLAUDE.md inside a quarantined .claude folder, say), then
+  # remove the original. Nothing is lost: the archive holds it all.
+  tar -czf "$QDIR/$(printf '%s' "${f#"$ROOT"/}" | tr '/ ' '__').quarantined.tgz" \
+    -C "$(dirname "$f")" "$(basename "$f")" && rm -rf -- "$f"
   echo "$(date -Iseconds)  quarantined: ${f#"$ROOT"/}" >> "$LOG"
   FOUND=1
 done < <(find "$ROOT/vault" \( -iname 'CLAUDE*.md' -o -iname '.claude' -o -iname '.git' -o -iname '.gitmodules' -o -iname '.gitattributes' \) -print0 2>/dev/null)
