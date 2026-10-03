@@ -181,18 +181,18 @@ own click.
 - `--setting-sources project`: user-level settings (extra folders, rules)
   do not load.
 - `--permission-mode dontAsk` with
-  `--allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)"`:
+  `--allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**/*.md)"`:
   every call not on the list is denied, in subagents too. Writes stay
-  inside `vault/` (`Edit` rules cover `Write`).
+  inside `vault/`, and only to `.md` files (`Edit` rules cover `Write`).
 - `--disallowedTools` denying reads of `.git/`, `logs/`, settings files and
   `.env` files, and any write of a `CLAUDE.md`, `CLAUDE.local.md` or
   `.claude/` file, so a poisoned page can neither lift a token nor plant
   instructions that a later interactive session would load as trusted.
 
 After the run, any `CLAUDE*.md`, `.claude`, `.git`, `.gitmodules` or
-`.gitattributes` found in `vault/`, in any letter case, is moved to
-`logs/quarantine-<time>/` under a harmless name, logged, and the run stops
-without committing. Git runs with hooks and fsmonitor switched off and commits
+`.gitattributes` found in `vault/`, in any letter case, is packed into a
+sealed archive in `logs/quarantine-<time>/`, logged, and the run stops
+without committing. The sweep runs even after a failed or stopped run. Git runs with hooks and fsmonitor switched off and commits
 `vault/` only. Never go back to `--dangerously-skip-permissions`: it
 approves every write anywhere on disk. The unattended run cannot read
 Gmail, by design: mail is read only by `/jobs-mail`, in a session you are

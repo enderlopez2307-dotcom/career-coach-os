@@ -54,7 +54,7 @@ run_capped() {
 #                         do not load; only this project's
 #   dontAsk + allowlist   anything not listed is denied, in subagents too.
 #                         Reads stay inside this folder, writes stay inside
-#                         vault/ (Edit rules cover Write as well), so a
+#                         vault/ and only to .md files (Edit rules cover Write), so a
 #                         poisoned page cannot rewrite .git/config, this
 #                         script, CLAUDE.md or a command file.
 #   --disallowedTools     no reading .git/, logs/ or settings files (where a
@@ -69,7 +69,7 @@ run_capped "$CLAUDE_BIN" -p "/jobs-daily" \
   --strict-mcp-config \
   --permission-mode dontAsk \
   --setting-sources project \
-  --allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)" \
+  --allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**/*.md)" \
   --disallowedTools "Read(.git/**),Read(logs/**),Read(.claude/settings*.json),Read(**/.env*),Edit(**/CLAUDE.md),Edit(**/CLAUDE.local.md),Edit(**/.claude/**)" \
   < /dev/null >> "$LOG" 2>&1 &
 CAP=$!
@@ -80,11 +80,6 @@ wait "$CAP"; ec=$?
 while kill -0 "$CAP" 2>/dev/null; do wait "$CAP"; ec=$?; done
 trap - TERM INT HUP
 set -e
-
-if [[ "$ec" -ne 0 ]]; then
-  echo "$(date -Iseconds)  claude run failed (exit $ec)" >> "$LOG"
-  exit "$ec"
-fi
 
 # Mail is never read unattended. /jobs-mail runs only in a session you are in.
 
@@ -109,6 +104,14 @@ done < <(find "$ROOT/vault" \( -iname 'CLAUDE*.md' -o -iname '.claude' -o -iname
 if [[ "$FOUND" == "1" ]]; then
   echo "$(date -Iseconds)  STOPPED: unexpected instruction or git files were in vault/, moved to $QDIR, nothing committed" >> "$LOG"
   exit 3
+fi
+
+# The sweep above runs even when claude failed, timed out or was stopped, so
+# a half-finished run cannot leave a planted file behind. Only now give up on
+# a failed run, before git.
+if [[ "$ec" -ne 0 ]]; then
+  echo "$(date -Iseconds)  claude run failed (exit $ec), nothing committed" >> "$LOG"
+  exit "$ec"
 fi
 
 # Git sync: commits and pushes vault/, which is your whole job search. Only

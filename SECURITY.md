@@ -58,7 +58,7 @@ The optional daily scheduler (`scripts/run-daily.sh`, installed on macOS by
 --strict-mcp-config
 --setting-sources project
 --permission-mode dontAsk
---allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)"
+--allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**/*.md)"
 --disallowedTools "Read(.git/**),Read(logs/**),Read(.claude/settings*.json),Read(**/.env*),Edit(**/CLAUDE.md),Edit(**/CLAUDE.local.md),Edit(**/.claude/**)"
 ```
 
@@ -71,14 +71,14 @@ The optional daily scheduler (`scripts/run-daily.sh`, installed on macOS by
 - `--setting-sources project` keeps your personal Claude Code settings (extra folders, your own
   rules) out of the unattended run.
 - `--permission-mode dontAsk` with that allowlist denies everything not listed, in subagents too.
-  Reads and searches stay inside the project folder. Writes stay inside `vault/`.
+  Reads and searches stay inside the project folder. Writes stay inside `vault/`, `.md` files only.
 - `--disallowedTools` blocks reading `.git/`, `logs/`, settings files and `.env` files, where a
   token could sit, and blocks writing any `CLAUDE.md`, `CLAUDE.local.md` or `.claude/` file. A
   hostile job page therefore cannot rewrite `.git/config`, a git hook, the scheduler, a command
   file, or plant instructions in `vault/` that a later session of yours would load as trusted.
 - After the run, any `CLAUDE*.md`, `.claude`, `.git`, `.gitmodules` or `.gitattributes` found in
-  `vault/`, in any letter case, is moved to `logs/quarantine-<time>/` under a harmless name, and
-  the run stops without committing. Check that folder if your log says STOPPED. The optional git step runs with git hooks
+  `vault/`, in any letter case, is packed into a sealed archive in `logs/quarantine-<time>/`,
+  and the run stops without committing, even if the run itself failed or was stopped. Check that folder if your log says STOPPED. The optional git step runs with git hooks
   and fsmonitor switched off and commits `vault/` only.
 
 **Never switch to `--dangerously-skip-permissions`.** It approves every call, including writes
