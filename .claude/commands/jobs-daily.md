@@ -17,7 +17,8 @@ first.
 3. **Coach drafts.** For anything from today's scan or pulse that is
    `Verified`, clears the profile's "act on it" score, AND has a human path
    (per the opportunity note's Key Contacts), draft one outreach message,
-   run `/voice-check`, and
+   read `.claude/commands/voice-check.md` and apply its checks (the
+   scheduled run cannot invoke slash commands), and
    add it to `vault/Outreach Drafts/_queue.md` as `needs review` with its
    `Channel` set — a scheduled run never marks its own work `ready`; that
    happens only when a human looks at it during `/review-queue`. For an
@@ -38,5 +39,6 @@ first.
 - Every filter in `config/profile.md` applies.
 - If this run has no conversation available (the scheduler), it still does
   steps 1–5 in full — drafting is not gated on a human being present, only
-  *sending* is, and that gate is structural (Coach has no send tool), not a
-  behavioral rule that could be skipped under time pressure.
+  *sending* is. In the scheduled run that gate is structural: no connector
+  loads, so no send tool exists. Interactively, it is Coach's hard rule
+  and the candidate's own click.

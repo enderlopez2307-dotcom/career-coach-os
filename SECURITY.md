@@ -56,8 +56,10 @@ The optional daily scheduler (`scripts/run-daily.sh`, installed on macOS by
 ```
 --tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"
 --strict-mcp-config
+--setting-sources project
 --permission-mode dontAsk
 --allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)"
+--disallowedTools "Read(.git/**),Read(logs/**),Read(.claude/settings*.json),Read(**/.env*),Edit(**/CLAUDE.md),Edit(**/CLAUDE.local.md),Edit(**/.claude/**)"
 ```
 
 - `--tools` removes every other built-in tool. Bash does not exist in that session or in any
@@ -66,12 +68,17 @@ The optional daily scheduler (`scripts/run-daily.sh`, installed on macOS by
   linked to your Claude account (mail, calendar, cloud consoles), whatever `--tools` says. With
   it, there is no Gmail, no browser and nothing that sends. The scheduled run never reads your
   mail, and that is a choice, not a gap: `/jobs-mail` reads it only in a session you are in.
+- `--setting-sources project` keeps your personal Claude Code settings (extra folders, your own
+  rules) out of the unattended run.
 - `--permission-mode dontAsk` with that allowlist denies everything not listed, in subagents too.
-  Reads and searches stay inside the project folder. Writes stay inside `vault/`. A hostile job
-  page cannot get an agent to read files elsewhere on your computer, or to rewrite `.git/config`,
-  a git hook, the scheduler script, `CLAUDE.md` or a command file.
-- The optional git step runs with git hooks and fsmonitor switched off, so nothing written into
-  the folder can make git run a command.
+  Reads and searches stay inside the project folder. Writes stay inside `vault/`.
+- `--disallowedTools` blocks reading `.git/`, `logs/`, settings files and `.env` files, where a
+  token could sit, and blocks writing any `CLAUDE.md`, `CLAUDE.local.md` or `.claude/` file. A
+  hostile job page therefore cannot rewrite `.git/config`, a git hook, the scheduler, a command
+  file, or plant instructions in `vault/` that a later session of yours would load as trusted.
+- After the run, the script stops before git if any `CLAUDE*.md`, `.claude`, `.git`,
+  `.gitmodules` or `.gitattributes` appears in `vault/`. The optional git step runs with git hooks
+  and fsmonitor switched off and commits `vault/` only.
 
 **Never switch to `--dangerously-skip-permissions`.** It approves every call, including writes
 anywhere on your disk. A single write to `.git/config` is enough to make a later `git status`
@@ -79,7 +86,7 @@ run any command. **Never replace `--tools` with `--allowedTools` alone either:**
 only pre-approves tools and removes none.
 
 **What the allowlist does not stop.** The scheduled run can read your profile and notes (it needs
-them to score roles) and can fetch web pages. A page that fools an agent could in principle get it
+them to score roles) and can fetch any web page. A page that fools an agent could in principle get it
 to put some of that into a web address it fetches. Keep secrets, passwords and anything you would
 not want leaked out of `config/` and `vault/`.
 

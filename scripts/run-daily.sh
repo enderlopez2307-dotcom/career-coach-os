@@ -30,7 +30,13 @@ run_capped() {
     my $t = shift;
     my $pid = fork() // die "fork failed: $!";
     if ($pid == 0) { setpgrp(0, 0); exec @ARGV or die "exec failed: $!"; }
-    $SIG{ALRM} = sub { kill "TERM", -$pid; sleep 10; kill "KILL", -$pid; exit 142; };
+    my $stop = sub { my $code = shift; kill "TERM", -$pid; sleep 10; kill "KILL", -$pid; exit $code; };
+    $SIG{ALRM} = sub { $stop->(142) };
+    # Ctrl-C or launchctl stopping this wrapper must stop claude too, or it
+    # would keep running in its own process group with no cap.
+    $SIG{INT}  = sub { $stop->(130) };
+    $SIG{TERM} = sub { $stop->(143) };
+    $SIG{HUP}  = sub { $stop->(129) };
     alarm $t;
     waitpid($pid, 0);
     exit(($? & 127) ? 128 + ($? & 127) : $? >> 8);
@@ -42,11 +48,17 @@ run_capped() {
 #   --tools               no Bash or other code-running tool exists at all
 #   --strict-mcp-config   no connectors load: no Gmail, no browser, nothing
 #                         that sends, whatever you have linked to your account
+#   --setting-sources     your user-level settings (extra folders, rules)
+#                         do not load; only this project's
 #   dontAsk + allowlist   anything not listed is denied, in subagents too.
 #                         Reads stay inside this folder, writes stay inside
 #                         vault/ (Edit rules cover Write as well), so a
 #                         poisoned page cannot rewrite .git/config, this
 #                         script, CLAUDE.md or a command file.
+#   --disallowedTools     no reading .git/, logs/ or settings files (where a
+#                         token could sit), and no CLAUDE.md or .claude/ file
+#                         anywhere in vault/, which a later session you run
+#                         would otherwise load as trusted instructions.
 # Never go back to --dangerously-skip-permissions: it approves every write,
 # anywhere on your disk.
 set +e
@@ -54,7 +66,9 @@ run_capped "$CLAUDE_BIN" -p "/jobs-daily" \
   --tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch" \
   --strict-mcp-config \
   --permission-mode dontAsk \
+  --setting-sources project \
   --allowedTools "Agent,WebFetch,WebSearch,Read(./**),Edit(vault/**)" \
+  --disallowedTools "Read(.git/**),Read(logs/**),Read(.claude/settings*.json),Read(**/.env*),Edit(**/CLAUDE.md),Edit(**/CLAUDE.local.md),Edit(**/.claude/**)" \
   < /dev/null >> "$LOG" 2>&1
 ec=$?
 set -e
@@ -66,6 +80,15 @@ fi
 
 # Mail is never read unattended. /jobs-mail runs only in a session you are in.
 
+# Belt and braces: if an instruction file or a .claude folder appeared in
+# vault/ anyway, stop before git or any later session can pick it up.
+SUSPECT="$(find "$ROOT/vault" \( -iname 'CLAUDE*.md' -o -name '.claude' -o -name '.git' -o -name '.gitmodules' -o -name '.gitattributes' \) -print 2>/dev/null || true)"
+if [[ -n "$SUSPECT" ]]; then
+  echo "$(date -Iseconds)  STOPPED: unexpected instruction or git files in vault/, not committed. Check and delete them yourself:" >> "$LOG"
+  echo "$SUSPECT" >> "$LOG"
+  exit 3
+fi
+
 # Git sync: commits and pushes vault/, which is your whole job search. Only
 # for a PRIVATE repository, and OFF unless you set CAREERCOACHOS_GIT_SYNC=1.
 # vault/ is gitignored in this copy, so you would also have to edit
@@ -76,7 +99,7 @@ cd "$ROOT"
 if [[ "${CAREERCOACHOS_GIT_SYNC:-0}" == "1" ]]; then
   if [[ -n "$("${GIT[@]}" status --porcelain -- vault)" ]]; then
     "${GIT[@]}" add vault
-    "${GIT[@]}" commit -m "Daily scan $(date +%Y-%m-%d)" -q
+    "${GIT[@]}" commit -m "Daily scan $(date +%Y-%m-%d)" -q -- vault
     if [[ "${CAREERCOACHOS_NO_PUSH:-0}" != "1" ]]; then
       "${GIT[@]}" push -q origin "$("${GIT[@]}" rev-parse --abbrev-ref HEAD)"
       echo "$(date -Iseconds)  committed and pushed" >> "$LOG"

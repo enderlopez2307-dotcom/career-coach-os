@@ -13,13 +13,17 @@ if [[ -z "$CLAUDE_BIN" ]]; then
 fi
 CLAUDE_DIR="$(dirname "$CLAUDE_BIN")"
 case "$ROOT$CLAUDE_BIN" in
-  *"|"*|*"&"*) echo "The folder path contains | or &, move the folder and try again."; exit 1 ;;
+  *[\|\&\<\>\"\\]*) echo "A folder path contains one of | & < > \" \\ . Move the folder and try again."; exit 1 ;;
 esac
 
 mkdir -p "$HOME/Library/LaunchAgents" "$ROOT/logs"
+# Render and check in a temp file first, so a bad render never replaces a
+# working schedule.
+TMP_PLIST="$(mktemp -t careercoachos-plist)"
 sed -e "s|REPO_ROOT|$ROOT|g" -e "s|CLAUDE_BIN_PATH|$CLAUDE_BIN|g" -e "s|CLAUDE_DIR|$CLAUDE_DIR|g" \
-  "$ROOT/scripts/launchd/$LABEL.plist.template" > "$DEST"
-plutil -lint "$DEST" >/dev/null || { echo "The generated schedule file is invalid: $DEST"; exit 1; }
+  "$ROOT/scripts/launchd/$LABEL.plist.template" > "$TMP_PLIST"
+plutil -lint "$TMP_PLIST" >/dev/null || { echo "The generated schedule file is invalid, nothing installed."; rm -f "$TMP_PLIST"; exit 1; }
+mv "$TMP_PLIST" "$DEST"
 chmod 644 "$DEST"
 
 launchctl unload "$DEST" 2>/dev/null || true

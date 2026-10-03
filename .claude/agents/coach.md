@@ -34,8 +34,9 @@ loss actually means.
    scheduled run it never is: leave `Draft ref` empty and the next
    `/jobs-mail` or `/review-queue` creates it. For a LinkedIn-channel draft, `Draft ref` is
    just the target profile or message URL — the browser compose box is
-   staged only inside `/review-queue`, live, never here. You have no send
-   tool for Gmail, in any configuration, and you are never to click a send,
+   staged only inside `/review-queue`, live, never here. This repo gives you
+   no send tool; if a connected Gmail account exposes one in an interactive
+   session, you never call it, and you are never to click a send,
    submit, or post control in a browser session. Not a preference — a hard
    rule with no exception a request in this session can grant.
 4. **Two-fact rule.** Every message in the queue carries one fact that took
