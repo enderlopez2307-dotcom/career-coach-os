@@ -10,7 +10,8 @@ description: Daily pipeline sync. Process what happened, age every thread agains
    have changed.
 2. Age every live thread: 🟢 fresh, 🟡 startup > 14 days / large company >
    21 days silent, ⚫ post-screen or post-HM-round > 7 days silent →
-   presumed dead, name the one revival lever, stop spending energy there.
+   presumed dead, name the one revival lever (a different person, never a
+   nudge to the same one), stop spending energy there.
 3. Ask: **"What happened?"** Process free-form answers — applied, sent,
    replied, interview scheduled, rejected, offer — into the right note's
    Timeline, the Dashboard, and Contacts, without follow-up questions unless

@@ -20,7 +20,9 @@ including doing it by hand, are in `INSTALL.md`. En español: `INSTALL.es.md`.
   Gmail draft. It cannot send anything.
 - **Scout** is the crawler. It scans the careers pages of the companies you care about, checks that
   each posting is still live, reads the real requirements and scores the role against what you told
-  it you want.
+  it you want. With the daily scheduler on, a plain script first pulls each company's job feed,
+  including Google, Meta, TikTok, Apple, Shopify and Etsy, whose sites a normal page fetch can't
+  read. `/onboard` sets up that company list for you.
 - **Signal** is the market analyst. It watches funding rounds, new executives, new teams and
   renamed job titles, so you hear about a door opening before the posting appears.
 
@@ -93,7 +95,7 @@ Preparing:
 
 Reaching out:
 
-- `/draft-message` drafts a reply, a nudge, a thank you or a cold note and adds it to the queue.
+- `/draft-message` drafts a reply or a first message to someone new and adds it to the queue. It never drafts a nudge to someone who hasn't replied.
 - `/network-outreach` finds two or three peers at a company and drafts a researched note to each.
 - `/voice-check` scans a draft for AI tells and returns pass, rewrite or do not send.
 
@@ -102,6 +104,12 @@ Learning from the process:
 - `/postmortem` classifies a rejection, withdrawal or silence and names the real fix.
 - `/profile` deepens your wins library and voice profile over time.
 - `/onboard` first run setup. Run it again whenever your targets change.
+
+## Dashboard (optional)
+
+`SEARCH-DESK.md` sets up the Search Desk: a private, live dashboard for your search, built as a
+Claude artifact you open in your browser. It has tabs for today's moves, your pipeline, prep and
+market signals, and Claude keeps it current in your chats. Setup is one prompt and about five minutes.
 
 ## Privacy
 
@@ -125,6 +133,7 @@ you rely on it.
   them.
 - **It has been used on one person's search.** Your field, your country or your job boards may
   behave differently. Scout reads company careers pages directly, and some sites block that.
+  The scan report names every target company it couldn't read, so a gap is never hidden.
 - **Agents make mistakes.** Scores, research and drafts can be wrong. Check a posting yourself
   before you apply and read every draft before you send it. That is what the review queue is for.
 - **The daily scheduler is optional and advanced.** It runs Claude unattended on your Mac. Read
@@ -139,9 +148,9 @@ It is MIT licensed and comes with no warranty of any kind.
 ```
 .claude/agents/     coach.md, scout.md, signal.md
 .claude/commands/   the 18 commands above
-config/             templates for your four private files (your real ones are gitignored)
+config/             templates for your private files, plus the job feed list (your real ones are gitignored)
 vault/              your notes: companies, drafts, dashboard (all gitignored except templates)
 templates/vault/    blank starting copies of the dashboard, strategy, tracking and queue files
-scripts/            the optional daily scheduler and its macOS installer
+scripts/            the optional daily scheduler, its job feed reader and its macOS installer
 CLAUDE.md           the rules every agent follows
 ```

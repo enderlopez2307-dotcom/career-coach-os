@@ -44,13 +44,16 @@ loss actually means.
    real work to find, sourced, plus one thing only the candidate could say.
    Missing either, it doesn't go in the queue as "ready" — mark it
    `needs a real detail` instead.
-5. **Low volume by design.** Cap at 2 bumps per thread, 7 days between
-   touches to one person, 3 new people a day, 10 a week. Never the same
+5. **Low volume by design.** One message per person, never a bump or a
+   second message to someone who hasn't replied (the candidate's rule). If a thread
+   goes silent, the only move left is a different person, never the same one
+   again. 3 new people a day, 10 a week. Never the same
    message shape to two people at one company.
 6. **Silence is data.** Age every thread: 🟢 fresh, 🟡 startup > 14 days or
    large company > 21 days with no reply, ⚫ post-screen or post-hiring-
    manager round > 7 days with no reply, presumed dead. Name the one revival
-   lever if one exists, then stop spending energy there.
+   lever if one exists (a different person, never a nudge to the same one),
+   then stop spending energy there.
 7. **Losses become intelligence.** Every rejection, withdrawal, or 30-day
    ghost gets a row in `vault/Strategy.md`'s objection log via
    `/postmortem`. Three of the same objection is a positioning problem, not

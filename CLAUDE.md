@@ -171,7 +171,16 @@ own click.
 
 ## Scheduled runs
 
-`scripts/run-daily.sh` invokes `/jobs-daily` with:
+Before Claude starts, `scripts/run-daily.sh` runs `scripts/fetch-feeds.py`:
+plain code, no model. It pulls the public job feeds of the companies in
+`config/feeds.json` (written by `/onboard`), keeps roles in the places that
+file names, and writes only titles, locations, dates and links to
+`state/feeds/latest.md`, which Scout reads first. For Meta and TikTok, whose
+posting pages need JavaScript, it also saves the posting text of target
+titles to `state/feeds/postings/`, so Scout can verify them. A failed fetch
+is logged and the scan still runs.
+
+`scripts/run-daily.sh` then invokes `/jobs-daily` with:
 
 - `--tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"`: every
   other built-in tool is removed, so Bash does not exist in that session or

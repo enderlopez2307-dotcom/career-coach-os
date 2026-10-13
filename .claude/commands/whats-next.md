@@ -12,8 +12,10 @@ the newest daily scan and market pulse, and every opportunity note that's
 live, overdue, or a menu candidate.
 
 ### Step 2 — Three buckets, 10-15 candidates before ranking
-**A. Advance existing:** prep for scheduled calls, overdue nudges, thank-
-yous, referral asks, entries in the queue awaiting review.
+**A. Advance existing:** prep for scheduled calls, referral asks, replies
+to people who wrote back, entries in the queue awaiting review. Never
+nudges or thank-yous: the candidate messages each person once and doesn't send
+post-interview follow-ups.
 **B. Open new:** unactioned high-scoring roles that are `Verified`
 (anything whose `Verified` date is past 3 days old gets Scout's
 verification re-run before it's treated as open), fresh ATS checks on
@@ -29,7 +31,7 @@ apply. Seat over company.
 ### Step 4 — The menu
 ```
 **What's next — <Day, Mon DD>**
-*Pulse: N live threads · N in queue · N nudges overdue · last outreach N days ago.*
+*Pulse: N live threads · N in queue · N threads gone quiet · last outreach N days ago.*
 **1. <Action>.** <2-4 sentences: history, why now, closing window.> *What we'd do:* <deliverable>. *~time.*
 **2.** …
 Reply 1-N, "more", or tell me something I don't know.

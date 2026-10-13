@@ -45,6 +45,19 @@ run_capped() {
   ' "$TIMEOUT_SEC" "$@"
 }
 
+# Job feeds first, as plain code with no model involved: pull each company's
+# public job feed (list in config/feeds.json), keep roles in the places that
+# file names, and write titles and links only to state/feeds/latest.md for Scout.
+# A failed fetch is logged and the scan still runs. launchd's PATH is bare,
+# so fall back to the system python3.
+PY="$(command -v python3 || echo /usr/bin/python3)"
+if [[ -x "$PY" && -f "$ROOT/config/feeds.json" ]]; then
+  "$PY" -I "$ROOT/scripts/fetch-feeds.py" >> "$LOG" 2>&1 \
+    || echo "$(date -Iseconds)  feed fetch failed, scan continues without it" >> "$LOG"
+else
+  echo "$(date -Iseconds)  feed fetch skipped (no python3 or no config/feeds.json)" >> "$LOG"
+fi
+
 # The scheduled run. It reads job pages written by strangers, so it gets
 # only what it needs, enforced by Claude Code rather than by instructions:
 #   --tools               no Bash or other code-running tool exists at all

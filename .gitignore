@@ -1,9 +1,11 @@
 # Your job search is private. Nothing below is ever committed by default, so a
 # commit and push from this folder cannot publish it.
 
-# Your real config files (the *.template.md files ARE committed)
+# Your real config files (the *.template.* files ARE committed)
 config/*.md
 !config/*.template.md
+config/*.json
+!config/*.template.json
 
 # Everything in the vault except the empty-folder markers and the story template
 vault/**

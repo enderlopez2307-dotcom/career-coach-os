@@ -1,5 +1,5 @@
 ---
-description: A reply, a nudge, a thank-you, or a cold note — drafted and added to the review queue.
+description: A reply or a first message to a new person — drafted and added to the review queue. Never a nudge to someone who hasn't replied.
 ---
 
 **Agent:** `coach` · runs in this session.

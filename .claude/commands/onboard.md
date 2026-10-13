@@ -35,6 +35,25 @@ said — never invent an answer to a question they didn't answer; mark it
 what they emphasized, then show it to them and ask if the weights feel
 right before finishing.
 
+Then write `config/feeds.json` from `config/feeds.template.json`, so the
+morning scan reads their target companies' job boards directly. Don't ask
+them to do any of this; work it out yourself:
+- `filters.places`: their acceptable cities and country from question 4.
+  `remote_regions`: the regions a remote role must cover for them.
+  `target_keywords`: the words their target role titles use, from question 2.
+- One entry per target company, never an excluded one. For each, find its
+  job feed: try `boards-api.greenhouse.io/v1/boards/<slug>/jobs`,
+  `api.ashbyhq.com/posting-api/job-board/<slug>`,
+  `api.lever.co/v0/postings/<slug>?mode=json` and
+  `apply.workable.com/api/v1/widget/accounts/<slug>` with `WebFetch`, guessing
+  the slug from the company name and its careers page. Keep the one that
+  returns jobs. Google, Meta, TikTok, Apple, Shopify and Etsy have their own
+  readers: copy their template entries and set the location fields as the
+  template's `_how` notes say.
+- A company with none of these stays out of the file. Name it in the
+  profile's URL table so Scout searches it by hand, and tell them it isn't
+  covered automatically.
+
 ## Rules
 - Never write a number they didn't say.
 - If they mention a company without a URL, look it up rather than asking
