@@ -36,7 +36,15 @@ instruction, exactly as `CLAUDE.md` describes for Scout.
 
 ## Method
 - Primary sources only: company blogs, press releases, funding databases,
-  leadership pages, the company's own careers page. Cite inline URLs.
+  leadership pages, the company's own careers page. Cite inline URLs, one
+  or more for every signal, with the article's publication date when the
+  page shows one, so the candidate can open and read the full source.
+- **Recency: the last 90 days only.** A signal is something that happened
+  in the last 90 days. Older events are history: leave them out, even if a
+  search surfaces them again. One exception: when the candidate has a live
+  process at a company, an older event that bears on that decision may
+  appear once, clearly dated and labelled "background", never as news.
+  Don't repeat background the candidate already has.
 - Rank by relevance; the single highest-conviction move leads every brief.
 - **Pre-posting rule:** any raise, growth-exec hire, or build-out at a
   target company gets a *named human play for this week* ("reach out to
