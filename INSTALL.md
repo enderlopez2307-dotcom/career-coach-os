@@ -50,7 +50,7 @@ invent answers you did not give. You can write in any language; commands stay in
 
 **The setup.** Don't stop after the questions: this half is what makes it work. Coach runs a first
 scan of your target companies, builds your **Search Desk** dashboard and opens it in your browser
-(bookmark it), offers to turn on the daily morning scan if you are on a Mac, checks whether Gmail
+(bookmark it), offers to turn on the daily morning scan (Mac or Windows), checks whether Gmail
 is connected, and gives you a two-minute tour. If you have to leave halfway, the next session picks
 up where you stopped.
 
@@ -74,6 +74,7 @@ Before you apply anywhere, run `/warm-path <Company>`. Before an interview, run 
 - Your job search stays in this folder. It is ignored by Git by default.
 - To use `/jobs-mail`, connect Gmail in your Claude app's connector settings. Everything else works
   without it. `/onboard` checks this with you.
-- The daily morning scan is optional and Mac only. `/onboard` offers to turn it on for you; read
+- The daily morning scan is optional and works on Mac and Windows. `/onboard` offers to turn it on
+  for you; read
   `SECURITY.md` if you want to know exactly what it can and cannot do.
 - Stuck? Ask Claude in plain words, for example "I downloaded the folder, what do I do next?"

@@ -49,7 +49,10 @@ one.
 - A Claude subscription that includes Claude Code (Pro or higher).
 - Claude Code in any app: the Claude desktop app (https://claude.com/download, Code tab), the VS
   Code extension, or the terminal.
-- macOS if you want the optional daily scheduler. Everything else works anywhere Claude Code runs.
+- macOS or Windows. Everything works on both, including the optional daily morning scan (launchd on
+  a Mac, Task Scheduler on Windows). On Windows, install Git for Windows too
+  (https://git-scm.com/downloads/win): Claude Code recommends it, and the check that opens each
+  session needs it. Linux works for everything except the scheduled scan.
 
 ## Quick start
 
@@ -61,7 +64,7 @@ one.
 3. Type `/onboard`. About 25 minutes, in two halves. First a real conversation about your career,
    your targets and a few genuine wins, which writes four private files under `config/`. Then Coach
    sets everything up with you: a first scan of the market, your Search Desk dashboard, the daily
-   morning scan (Mac), Gmail, and a two-minute tour of the commands that matter.
+   morning scan, Gmail, and a two-minute tour of the commands that matter.
 
 After that, every session you open in the folder starts by telling you where you are: what is
 left to set up, or, if you have been away a few days, what to catch up on. You never have to
@@ -146,7 +149,7 @@ you rely on it.
   The scan report names every target company it couldn't read, so a gap is never hidden.
 - **Agents make mistakes.** Scores, research and drafts can be wrong. Check a posting yourself
   before you apply and read every draft before you send it. That is what the review queue is for.
-- **The daily scheduler is optional and advanced.** It runs Claude unattended on your Mac. Read
+- **The daily scheduler is optional and advanced.** It runs Claude unattended on your computer. Read
   `SECURITY.md` before you turn it on.
 - **Fetched web pages can try to give instructions to an agent.** The design treats everything
   fetched as data, but no defence is perfect.
@@ -161,7 +164,7 @@ It is MIT licensed and comes with no warranty of any kind.
 config/             templates for your private files, plus the job feed list (your real ones are gitignored)
 vault/              your notes: companies, drafts, dashboard (all gitignored except templates)
 templates/          the Search Desk page, plus blank starting copies of the vault files
-scripts/            the optional daily scheduler, its job feed reader, its macOS installer and the
-                    session-start check that tells each new session what to offer you
+scripts/            the optional daily scan (.sh for Mac, .ps1 for Windows), its installers, the job
+                    feed reader, and the session-start check that tells each session what to offer you
 CLAUDE.md           the rules every agent follows
 ```

@@ -75,12 +75,16 @@ below), so a later session knows exactly what is left.
    interview and the scan just produced. Open it, ask them to bookmark it,
    and point at the Today tab: "this is where your next moves live; tick
    them off here."
-3. **The daily morning scan.** On a Mac, explain in two lines: every morning
-   at 07:30 a locked-down run scans their companies and the market and files
-   a report, with no email access and nothing it can send. Ask if they want
-   it. On yes, run `bash scripts/install-launchd.sh` for them and show the
-   result. On no, or on Windows or Linux, record it and tell them
-   `/jobs-daily` does the same thing by hand.
+3. **The daily morning scan.** Explain in two lines: every morning at 07:30
+   a locked-down run scans their companies and the market and files a
+   report, with no email access and nothing it can send. Ask if they want
+   it. On yes, install it for them and show the result:
+   - **Mac:** `bash scripts/install-launchd.sh`
+   - **Windows:** `powershell -NoProfile -ExecutionPolicy Bypass -File scripts/install-task.ps1`
+     (Task Scheduler, runs as them while signed in, no admin needed)
+   - **Linux:** no installer yet; record `skipped` and tell them
+     `/jobs-daily` does the same thing by hand.
+   On no, record `skipped` and tell them about `/jobs-daily`.
 4. **Gmail.** Check whether this session has a Gmail tool (search threads,
    read a thread). If it does, say `/jobs-mail` is ready and that it only
    reads and drafts, never sends. If not, tell them how to connect it in the

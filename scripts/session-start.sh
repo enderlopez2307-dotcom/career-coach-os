@@ -6,6 +6,14 @@
 # nothing written into the vault by a fetched page can reach Claude this way.
 # It exits quietly on any error and adds nothing to the unattended daily run.
 [[ "${CAREERCOACHOS_SCHEDULED:-0}" == "1" ]] && exit 0
+# On Windows, Claude Code runs hooks in Git Bash. The Windows checks (Task
+# Scheduler, Windows paths) live in the PowerShell twin, so hand over to it.
+case "$(uname -s 2>/dev/null)" in
+  MINGW*|MSYS*|CYGWIN*)
+    HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    exec powershell.exe -NoProfile -ExecutionPolicy Bypass -File "$(cygpath -w "$HERE/session-start.ps1")"
+    ;;
+esac
 ROOT="${CLAUDE_PROJECT_DIR:-$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)}"
 cd "$ROOT" 2>/dev/null || exit 0
 

@@ -51,7 +51,10 @@ the same agents have the same tools, and you are the one approving anything unus
 ## The scheduler guardrail
 
 The optional daily scheduler (`scripts/run-daily.sh`, installed on macOS by
-`scripts/install-launchd.sh`) runs Claude with no human present. It calls Claude with:
+`scripts/install-launchd.sh`; on Windows `scripts/run-daily.ps1`, installed in Task Scheduler by
+`scripts/install-task.ps1`) runs Claude with no human present. Both versions apply the same
+guardrails: the same flags, the same time cap (on Windows, `taskkill /T` stops the whole process
+tree), and the same sweep of `vault/` afterwards. It calls Claude with:
 
 ```
 --tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch"
@@ -93,9 +96,10 @@ not want leaked out of `config/` and `vault/`.
 
 ## The session-start check
 
-`.claude/settings.json` runs `scripts/session-start.sh` each time you open a session in this folder.
-It is a short shell script you can read in a minute. It only checks whether a few files exist (your
-profile, `vault/Automation/Setup.md`, `config/dashboard.json`, the macOS schedule file) and how long
+`.claude/settings.json` runs `scripts/session-start.sh` each time you open a session in this folder
+(on Windows it hands over to its PowerShell twin, `scripts/session-start.ps1`). Both are short
+scripts you can read in a minute. It only checks whether a few files exist (your
+profile, `vault/Automation/Setup.md`, `config/dashboard.json`, the macOS or Windows schedule) and how long
 ago a vault note changed, then prints fixed text telling Claude which setup step or habit to offer
 you. It never prints the contents of any file, so nothing a fetched page wrote into your vault can
 reach Claude through it, and it adds nothing to the unattended daily run.

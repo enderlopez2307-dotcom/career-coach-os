@@ -45,8 +45,9 @@ the full data model; read it before writing anything.
    - `scanlogs/<date>`: one per daily scan note not yet logged.
    - `meta/prep`: only when a round is booked.
 4. **Read one collection back** to confirm the page sees the data.
-5. **Open it.** Use the Artifact tool's `open` action. On a Mac, also offer
-   `open <url>` so it sits in their browser; suggest they bookmark it.
+5. **Open it.** Use the Artifact tool's `open` action, and open it in their
+   browser too so they can bookmark it: `open <url>` on a Mac,
+   `Start-Process <url>` in PowerShell on Windows, `xdg-open <url>` on Linux.
 
 ## Rules
 - Real facts only. Never invent a number, contact, date or stage. An empty

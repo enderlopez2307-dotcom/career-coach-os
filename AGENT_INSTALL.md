@@ -61,7 +61,14 @@ missing, say so and stop.
 - Do not install the daily scheduler, connect Gmail or any other account, or edit any file in the
   folder. Those are the person's choices, later.
 
-## 5. Tell the person how to start
+## 5. On Windows, check for Git
+
+Run `git --version`. If it fails, tell the person to install Git for Windows
+(https://git-scm.com/downloads/win, default options) before they open the new session. Claude Code
+recommends it on Windows, and CareerCoachOS's session-start check runs through Git Bash. Do not
+install it for them.
+
+## 6. Tell the person how to start
 
 In their language, tell them the install is done and that the next step is a **fresh session
 opened on the CareerCoachOS folder**. Give only the steps for the app they are using now:

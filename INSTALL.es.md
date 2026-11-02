@@ -41,14 +41,22 @@ CareerCoachOS solo aparecen en una sesión que empieza dentro de su carpeta.
 
 ## Tu primera sesión
 
-`/onboard` es una conversación de verdad. El Coach te entrevista, una pregunta a la vez: tu
+`/onboard` dura unos 25 minutos, en dos partes.
+
+**La entrevista.** `/onboard` es una conversación de verdad. El Coach te entrevista, una pregunta a la vez: tu
 trabajo actual, los cargos que quieres, el sueldo mínimo por debajo del cual un trabajo no vale la
 pena, dónde sí y dónde no quieres trabajar, empresas que quieres evitar, empresas que te
 interesan, algunos logros reales con números y un párrafo escrito por ti para que los borradores
 suenen como tú. Guarda cuatro archivos privados en `config/`. Responde con sinceridad. No inventa
 respuestas que tú no diste. Puedes escribir en español; los comandos se escriben en inglés.
 
-Después, los comandos de todos los días:
+**La configuración.** No te vayas después de las preguntas: esta parte es la que hace que funcione.
+El Coach hace una primera búsqueda en tus empresas, arma tu panel **Search Desk** y lo abre en tu
+navegador (guárdalo en favoritos), te ofrece activar la búsqueda diaria de cada mañana (Mac o
+Windows), revisa si Gmail está conectado y te da un recorrido de dos minutos. Si tienes que irte a
+la mitad, la próxima sesión retoma donde quedaste.
+
+Después, solo abre una sesión en la carpeta: te dirá qué sigue. Los comandos de todos los días:
 
 ```
 /whats-next      un menú ordenado con los mejores próximos pasos
@@ -68,8 +76,9 @@ ejecuta `/jobs-prep` y luego `/mock-interview`.
 - Tu búsqueda de trabajo se queda en esta carpeta. Git la ignora por defecto.
 - Para usar `/jobs-mail`, conecta Gmail en los conectores de tu app de Claude. Todo lo demás
   funciona sin eso.
-- El programador diario es opcional, solo funciona en Mac y se activa desde una terminal. Lee
-  `SECURITY.md` primero. Para activarlo, ejecuta `bash scripts/install-launchd.sh` dentro de la
-  carpeta.
+- La búsqueda diaria de cada mañana es opcional y funciona en Mac y Windows. `/onboard` te ofrece
+  activarla; lee `SECURITY.md` si quieres saber exactamente qué puede y qué no puede hacer.
+- En Windows, instala también Git for Windows (https://git-scm.com/downloads/win). Claude Code lo
+  recomienda, y el aviso que abre cada sesión lo necesita.
 - Si te trabas, pregúntale a Claude con tus propias palabras, por ejemplo: "ya descargué la
   carpeta, ¿qué hago ahora?"
