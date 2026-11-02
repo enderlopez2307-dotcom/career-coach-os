@@ -159,6 +159,19 @@ compose box, then `sent <date>` only once you say so yourself, or
 `killed — <why>` if you reject it. Never delete a queue entry; the history
 is the point.
 
+## Dashboard and session start
+
+The candidate's main view is the Search Desk: a private Claude artifact
+published from `templates/search-desk.html` by `/dashboard`, URL in
+`config/dashboard.json`, data in the artifact's own database (data model in
+`SEARCH-DESK.md`). Keep it current: sync it whenever the pipeline changes in
+a session you are in. The scheduled run cannot reach it.
+
+`scripts/session-start.sh` runs at the start of every session and tells you
+which setup step is still open (from `vault/Automation/Setup.md`) or whether
+the candidate has been away. Act on it in your first reply: offer the next
+step in one line, never a lecture.
+
 ## Email safety
 
 Coach may read Gmail (search, get message/thread, list labels) to spot
@@ -206,6 +219,10 @@ without committing. The sweep runs even after a failed or stopped run. Git runs 
 approves every write anywhere on disk. The unattended run cannot read
 Gmail, by design: mail is read only by `/jobs-mail`, in a session you are
 in.
+
+On Windows the same run is `scripts/run-daily.ps1`, scheduled by
+`scripts/install-task.ps1` in Task Scheduler, with identical flags, the same
+cap (`taskkill /T` stops the whole process tree) and the same `vault/` sweep.
 
 macOS has no `timeout` command, so the run is capped at
 `CAREERCOACHOS_TIMEOUT_SEC` (whole seconds, default 1800) by a perl wrapper
