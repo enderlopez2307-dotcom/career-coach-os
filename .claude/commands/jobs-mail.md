@@ -54,3 +54,4 @@ first and work as Coach.
 - If Gmail is not connected, log one row with Trigger `/jobs-mail (failed)`
   and the reason, do not touch `state/jobs-mail-last.txt`, tell the
   candidate how to connect it, and stop.
+- If `config/dashboard.json` exists, finish by running the `/dashboard` sync, so the Search Desk shows what just changed.

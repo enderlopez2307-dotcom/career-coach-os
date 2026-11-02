@@ -17,3 +17,6 @@ description: Classifies a loss (rejection, withdrawal, or silence), logs it to t
    concrete fix (a wins.md story to sharpen, a rubric weight that's off, a
    round that needs more prep).
 5. Move the opportunity note's stage to `Closed`.
+
+## Rules
+- If `config/dashboard.json` exists, finish by running the `/dashboard` sync, so the Search Desk shows what just changed.

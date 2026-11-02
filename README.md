@@ -58,8 +58,14 @@ one.
 2. Open a fresh session on that folder. In the desktop app: Code tab, Local, Select folder. In VS
    Code: File, Open Folder. In a terminal: `cd` into it and run `claude`. The commands only load in
    a session started inside the folder.
-3. Type `/onboard`. It is a real conversation about your career, your targets and a few genuine
-   wins, and it writes four private files under `config/`. After that, use the commands below.
+3. Type `/onboard`. About 25 minutes, in two halves. First a real conversation about your career,
+   your targets and a few genuine wins, which writes four private files under `config/`. Then Coach
+   sets everything up with you: a first scan of the market, your Search Desk dashboard, the daily
+   morning scan (Mac), Gmail, and a two-minute tour of the commands that matter.
+
+After that, every session you open in the folder starts by telling you where you are: what is
+left to set up, or, if you have been away a few days, what to catch up on. You never have to
+remember a command to get going. Typing `/whats-next` always works.
 
 ## Commands
 
@@ -71,6 +77,7 @@ Daily use:
   pick one and do it together.
 - `/checkin` records what happened, ages every thread against reality and refreshes your
   dashboard.
+- `/dashboard` builds your Search Desk the first time and refreshes it after that.
 - `/jobs-mail` checks your Gmail while you are in the session: recruiter replies, interview
   invites and rejections go into your notes, and replies are drafted. The scheduler never reads
   your mail.
@@ -105,11 +112,14 @@ Learning from the process:
 - `/profile` deepens your wins library and voice profile over time.
 - `/onboard` first run setup. Run it again whenever your targets change.
 
-## Dashboard (optional)
+## Dashboard
 
-`SEARCH-DESK.md` sets up the Search Desk: a private, live dashboard for your search, built as a
-Claude artifact you open in your browser. It has tabs for today's moves, your pipeline, prep and
-market signals, and Claude keeps it current in your chats. Setup is one prompt and about five minutes.
+The Search Desk is where you watch your search: a private, live page built as a Claude artifact,
+opened in your browser like any website. Tabs for today's moves (tick them off on the page), every
+role and its rounds, interview prep, market signals and each morning's scan. `/onboard` builds it
+for you; `/dashboard` builds or refreshes it any time. It needs the Claude desktop app or
+claude.ai; in other apps `vault/Dashboard.md` holds the same facts as text. Details in
+`SEARCH-DESK.md`.
 
 ## Privacy
 
@@ -147,10 +157,11 @@ It is MIT licensed and comes with no warranty of any kind.
 
 ```
 .claude/agents/     coach.md, scout.md, signal.md
-.claude/commands/   the 18 commands above
+.claude/commands/   the 19 commands above
 config/             templates for your private files, plus the job feed list (your real ones are gitignored)
 vault/              your notes: companies, drafts, dashboard (all gitignored except templates)
-templates/vault/    blank starting copies of the dashboard, strategy, tracking and queue files
-scripts/            the optional daily scheduler, its job feed reader and its macOS installer
+templates/          the Search Desk page, plus blank starting copies of the vault files
+scripts/            the optional daily scheduler, its job feed reader, its macOS installer and the
+                    session-start check that tells each new session what to offer you
 CLAUDE.md           the rules every agent follows
 ```

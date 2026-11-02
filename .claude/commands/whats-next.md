@@ -52,3 +52,6 @@ Opportunity note, Dashboard, queue, Contacts, one row in
 Remove the completed action, re-rank, add anything new. On stop: a
 Recruiter's read on what got done, whether the pace holds, what's on top
 next time.
+
+## Rules
+- If `config/dashboard.json` exists, finish by running the `/dashboard` sync, so the Search Desk shows what just changed.

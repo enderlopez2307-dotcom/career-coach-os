@@ -40,14 +40,21 @@ load in a session started inside its folder.
 
 ## Your first session
 
-`/onboard` is a real conversation. Coach interviews you, one question at a time: your current work,
-the roles you want, the salary below which a role is not worth discussing, where you will and will
-not work, companies to avoid, target companies, a few real wins with numbers, and a paragraph of
-your own writing so drafts sound like you. It writes four private files in `config/`. Answer
-honestly. It will not invent answers you did not give. You can write in any language; commands
-stay in English.
+`/onboard` takes about 25 minutes, in two halves.
 
-After that, the daily commands:
+**The interview.** Coach asks, one question at a time: your current work, the roles you want, the
+salary below which a role is not worth discussing, where you will and will not work, companies to
+avoid, target companies, a few real wins with numbers, and a paragraph of your own writing so
+drafts sound like you. It writes four private files in `config/`. Answer honestly. It will not
+invent answers you did not give. You can write in any language; commands stay in English.
+
+**The setup.** Don't stop after the questions: this half is what makes it work. Coach runs a first
+scan of your target companies, builds your **Search Desk** dashboard and opens it in your browser
+(bookmark it), offers to turn on the daily morning scan if you are on a Mac, checks whether Gmail
+is connected, and gives you a two-minute tour. If you have to leave halfway, the next session picks
+up where you stopped.
+
+After that, just open a session in the folder. It tells you what is next. The daily commands:
 
 ```
 /whats-next      a ranked menu of the best next moves
@@ -66,7 +73,7 @@ Before you apply anywhere, run `/warm-path <Company>`. Before an interview, run 
   box. You press send.
 - Your job search stays in this folder. It is ignored by Git by default.
 - To use `/jobs-mail`, connect Gmail in your Claude app's connector settings. Everything else works
-  without it.
-- The daily scheduler is optional, Mac only, and runs from a terminal. Read `SECURITY.md` first.
-  To turn it on, run `bash scripts/install-launchd.sh` inside the folder.
+  without it. `/onboard` checks this with you.
+- The daily morning scan is optional and Mac only. `/onboard` offers to turn it on for you; read
+  `SECURITY.md` if you want to know exactly what it can and cannot do.
 - Stuck? Ask Claude in plain words, for example "I downloaded the folder, what do I do next?"

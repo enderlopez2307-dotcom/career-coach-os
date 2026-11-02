@@ -76,6 +76,9 @@ fi
 #                         would otherwise load as trusted instructions.
 # Never go back to --dangerously-skip-permissions: it approves every write,
 # anywhere on your disk.
+# Tells the session-start hook this is the unattended run, so it adds no
+# "welcome / finish your setup" context meant for a person.
+export CAREERCOACHOS_SCHEDULED=1
 set +e
 run_capped "$CLAUDE_BIN" -p "/jobs-daily" \
   --tools "Agent,Read,Write,Edit,Glob,Grep,WebFetch,WebSearch" \

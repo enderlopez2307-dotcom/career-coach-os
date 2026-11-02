@@ -223,5 +223,6 @@ or push from this folder does not include them.
 If a vault file a command expects is missing (`vault/Dashboard.md`,
 `vault/Strategy.md`, `vault/Tracking/Contacts.md`,
 `vault/Tracking/Companies.md`, `vault/Outreach Drafts/_queue.md`,
-`vault/Automation/Run Log.md`), create it from the blank copy in
+`vault/Automation/Run Log.md`, `vault/Automation/Setup.md`), create it
+from the blank copy in
 `templates/vault/` first. Never overwrite one that exists.

@@ -73,8 +73,9 @@ opened on the CareerCoachOS folder**. Give only the steps for the app they are u
 - **Terminal:** go into the folder (`cd` followed by the exact path you used in step 1) and run
   `claude`.
 
-Then they type `/onboard`. The Coach interviews them about their career, one question at a time,
-in whatever language they write in.
+Then they type `/onboard`. It takes about 25 minutes: the Coach interviews them about their career,
+one question at a time, in whatever language they write in, then sets up their dashboard, the daily
+scan and Gmail with them. Tell them to stay for the second half; that is what makes it useful.
 
 Also tell them, in one line each:
 

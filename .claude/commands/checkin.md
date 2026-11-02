@@ -24,3 +24,4 @@ description: Daily pipeline sync. Process what happened, age every thread agains
 ## Rules
 - A rejection or withdrawal gets offered `/postmortem`, not just logged.
 - Never rewrite hand-written rationale in the Dashboard.
+- If `config/dashboard.json` exists, finish by running the `/dashboard` sync, so the Search Desk shows what just changed.

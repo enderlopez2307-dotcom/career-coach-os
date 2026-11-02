@@ -91,6 +91,15 @@ them to score roles) and can fetch any web page. A page that fools an agent coul
 to put some of that into a web address it fetches. Keep secrets, passwords and anything you would
 not want leaked out of `config/` and `vault/`.
 
+## The session-start check
+
+`.claude/settings.json` runs `scripts/session-start.sh` each time you open a session in this folder.
+It is a short shell script you can read in a minute. It only checks whether a few files exist (your
+profile, `vault/Automation/Setup.md`, `config/dashboard.json`, the macOS schedule file) and how long
+ago a vault note changed, then prints fixed text telling Claude which setup step or habit to offer
+you. It never prints the contents of any file, so nothing a fetched page wrote into your vault can
+reach Claude through it, and it adds nothing to the unattended daily run.
+
 ## Your data
 
 Your search lives in `config/` and `vault/` on your own computer. Both are listed in `.gitignore`
