@@ -40,7 +40,7 @@ def pattern(words):
 # by its location, REMOTE_REGION keeps a remote role by its region, and TARGET
 # moves a role to the top. Everything else in scope is still listed, because the
 # renames that matter rarely use the exact words.
-PLACE = REMOTE_REGION = TARGET = None
+PLACE = REMOTE_REGION = TARGET = NOT_TARGET = None
 
 
 def get(url, data=None):
@@ -62,8 +62,9 @@ def clean(s):
 
 
 def greenhouse(slug):
-    for j in json.loads(get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs"))["jobs"]:
+    for j in json.loads(get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs?content=true"))["jobs"]:
         yield {
+            "detail": html.unescape(j.get("content") or ""),
             "title": j.get("title"),
             "location": (j.get("location") or {}).get("name", ""),
             "team": "",
@@ -89,6 +90,7 @@ def ashby(slug):
             "team": j.get("team") or j.get("department") or "",
             "date": (j.get("publishedAt") or "")[:10],
             "url": j.get("jobUrl"),
+            "detail": j.get("descriptionPlain") or "",
         }
 
 
@@ -105,6 +107,8 @@ def lever(slug):
             "team": cat.get("team") or "",
             "date": datetime.date.fromtimestamp(created / 1000).isoformat() if created else "",
             "url": j.get("hostedUrl"),
+            "detail": (j.get("descriptionPlain") or "") + " " + " ".join(
+                re.sub(r"<[^>]+>", " ", x.get("content") or "") for x in j.get("lists") or []),
         }
 
 
@@ -247,12 +251,31 @@ def apple(location, locale, queries):
 
 
 def shopify(_):
+    # Each job link carries a posting id; the title and location sit in elements
+    # whose ids end in "<posting id>-title" and "<posting id>-location".
     page = get("https://www.shopify.com/careers")
-    for m in re.finditer(
-        r'href="(/careers/[a-z0-9-]+_[0-9a-f-]{36})"[^>]*>\s*<h4[^>]*>(.*?)</h4>.*?<span[^>]*>(.*?)</span>', page, re.S
-    ):
-        yield {"title": m.group(2), "location": m.group(3), "team": "", "date": "",
+    seen = set()
+    for m in re.finditer(r'href="(/careers/[a-z0-9-]+_([0-9a-f-]{36}))"', page):
+        pid = m.group(2)
+        if pid in seen:
+            continue
+        seen.add(pid)
+        title = re.search(r'id="[^"]*-' + pid + r'-title"[^>]*>(.*?)</', page, re.S)
+        loc = re.search(r'id="[^"]*-' + pid + r'-location"[^>]*>(.*?)</', page, re.S)
+        yield {"title": re.sub(r"<[^>]+>", "", title.group(1)) if title else m.group(1).split("/")[-1].split("_")[0],
+               "location": re.sub(r"<[^>]+>", "", loc.group(1)) if loc else "", "team": "", "date": "",
                "url": "https://www.shopify.com" + m.group(1)}
+
+
+def google_text(url):
+    """The qualifications and job description from a Google posting page (WebFetch can't read it)."""
+    page = get(url)
+    i = page.find("Minimum qualifications")
+    if i < 0:
+        return ""
+    text = re.sub(r"<[^>]+>", "\n", page[i:i + 20000])
+    text = re.sub(r"\n\s*\n+", "\n", html.unescape(text))
+    return text.split("Information collected and processed")[0][:7000]
 
 
 def etsy(_):
@@ -283,18 +306,223 @@ def etsy(_):
             break
 
 
-SOURCES = {"greenhouse": greenhouse, "ashby": ashby, "lever": lever, "workable": workable}
+def smartrecruiters(slug):
+    offset = 0
+    while True:
+        data = json.loads(get(f"https://api.smartrecruiters.com/v1/companies/{slug}/postings?limit=100&offset={offset}"))
+        posts = data.get("content") or []
+        for j in posts:
+            loc = (j.get("location") or {})
+            text = loc.get("fullLocation") or ", ".join(p for p in (loc.get("city"), loc.get("country")) if p)
+            if loc.get("remote"):
+                text += " (remote)"
+            yield {
+                "title": j.get("name"),
+                "location": text,
+                "team": (j.get("department") or {}).get("label") or "",
+                "date": (j.get("releasedDate") or "")[:10],
+                "url": f"https://jobs.smartrecruiters.com/{slug}/{j.get('id')}",
+            }
+        offset += len(posts)
+        if not posts or offset >= (data.get("totalFound") or 0) or offset >= 1000:
+            break
+
+
+def workday(host, tenant, site):
+    # Workday career sites (PayPal, Salesforce, Fiserv, Mastercard...) load jobs
+    # from a public JSON endpoint. List results often say only "3 Locations", so
+    # filter on the site's own location facets that match the configured places
+    # (e.g. "London, England, United Kingdom") and list every job under them.
+    api = f"https://{host}/wday/cxs/{tenant}/{site}/jobs"
+
+    def page(facets, offset):
+        return json.loads(get(api, {"appliedFacets": facets, "limit": 20, "offset": offset, "searchText": ""}))
+
+    picked = {}
+
+    def walk(items, param):
+        for f in items:
+            p = f.get("facetParameter") or param
+            for v in f.get("values") or []:
+                if v.get("values"):
+                    walk([v], p)
+                elif p and re.search(r"location|country", p, re.I) and PLACE.search(v.get("descriptor") or ""):
+                    picked.setdefault(p, []).append((v["id"], v.get("descriptor") or ""))
+
+    walk(page({}, 0).get("facets") or [], None)
+    if not picked:
+        return
+    # One facet group is enough; prefer the most specific (city-level) one.
+    param = next((p for p in picked if "country" not in p.lower()), next(iter(picked)))
+    facets = {param: [i for i, _ in picked[param]]}
+    place = "; ".join(d for _, d in picked[param])
+    offset, total = 0, None
+    while total is None or offset < min(total, 400):
+        data = page(facets, offset)
+        total = data.get("total") or 0
+        posts = data.get("jobPostings") or []
+        for j in posts:
+            yield {
+                "title": j.get("title"),
+                "location": f"{j.get('locationsText') or ''} (Workday filter: {place})",
+                "team": "",
+                "date": j.get("postedOn") or "",
+                "url": f"https://{host}/en-US/{site}{j.get('externalPath') or ''}",
+            }
+        if not posts:
+            break
+        offset += len(posts)
+
+
+def amazon(country):
+    # amazon.jobs serves its search as JSON; filter by ISO country code (e.g. IRL).
+    offset = 0
+    while True:
+        data = json.loads(get(
+            "https://www.amazon.jobs/en/search.json?result_limit=100&sort=recent"
+            f"&normalized_country_code%5B%5D={country}&offset={offset}"
+        ))
+        posts = data.get("jobs") or []
+        for j in posts:
+            yield {
+                "title": j.get("title"),
+                "location": j.get("normalized_location") or j.get("location") or "",
+                "team": j.get("job_category") or "",
+                "date": j.get("posted_date") or "",
+                "url": "https://www.amazon.jobs" + (j.get("job_path") or ""),
+            }
+        offset += len(posts)
+        if not posts or offset >= min(data.get("hits") or 0, 1000):
+            break
+
+
+SOURCES = {"greenhouse": greenhouse, "ashby": ashby, "lever": lever, "workable": workable,
+           "smartrecruiters": smartrecruiters}
+
+
+# Board discovery, adapted from JobFinderOS (scripts/jfgraph/discover.py). Given
+# only a company name, guess its slug on each public ATS and check whether a
+# board answers. Enrolling a stranger's board under a target's name is the
+# failure that matters (a probe for "x" or "uber" hits tiny unrelated boards),
+# so a board is only enrolled when the ATS's own company name matches, or the
+# slug is the whole name and the board is big enough not to be a squatter.
+# Everything else goes to a review list, never into the scan.
+DISCOVERY = os.path.join(OUT_DIR, "discovery.json")
+DISCOVER_ATS = ["greenhouse", "ashby", "lever", "smartrecruiters"]
+STOP_WORDS = {"inc", "llc", "ltd", "corp", "co", "company", "the", "hq", "technologies", "technology",
+              "software", "group", "holdings", "plc", "gmbh", "ag", "labs"}
+RECHECK_DAYS = 14         # a company with no board is probed again after this
+DISCOVER_BUDGET_SEC = 90  # discovery never holds the scan up longer than this
+MIN_JOBS = 3              # smaller boards go to review: often abandoned or a test
+
+
+def norm(s):
+    return re.sub(r"[^a-z0-9]", "", (s or "").lower())
+
+
+def slug_candidates(company):
+    toks = [t for t in re.split(r"[^a-z0-9]+", company.lower()) if t]
+    core = [t for t in toks if t not in STOP_WORDS] or toks
+    forms = ["".join(core), "-".join(core), "".join(toks)]
+    if len(core) > 1:
+        forms.append(core[0])
+    return [f for f in dict.fromkeys(forms) if len(f) >= 2]
+
+
+def probe(ats, slug):
+    """(job count, the ATS's own company name or None), or None when no board answers."""
+    try:
+        if ats == "greenhouse":
+            name = json.loads(get(f"https://boards-api.greenhouse.io/v1/boards/{slug}")).get("name")
+            return len(json.loads(get(f"https://boards-api.greenhouse.io/v1/boards/{slug}/jobs"))["jobs"]), name
+        if ats == "smartrecruiters":
+            d = json.loads(get(f"https://api.smartrecruiters.com/v1/companies/{slug}/postings?limit=1"))
+            posts = d.get("content") or []
+            return (d.get("totalFound") or 0, (posts[0].get("company") or {}).get("name")) if posts else None
+        # Ashby and Lever's APIs carry no company name, but the public board page's
+        # title does ("Patreon Jobs"; "LinkedIn Partner Sandbox - RSC testing").
+        count = sum(1 for _ in SOURCES[ats](slug))
+        host = "jobs.ashbyhq.com" if ats == "ashby" else "jobs.lever.co"
+        m = re.search(r"<title>([^<]*)</title>", get(f"https://{host}/{slug}"), re.I)
+        title = re.sub(r"\s*(jobs|careers)\s*$", "", html.unescape(m.group(1)).strip(), flags=re.I) if m else None
+        return count, title
+    except Exception:
+        return None
+
+
+def discover(cfg, names):
+    """Probe new names, return the boards confidently found (cached in state/feeds/discovery.json)."""
+    try:
+        cache = json.load(open(DISCOVERY))
+    except (OSError, ValueError):
+        cache = {}
+    watched = {norm(c["name"]) for c in cfg["companies"]}
+    excluded = {norm(n) for n in (cfg.get("filters") or {}).get("exclude", [])}
+    today = datetime.date.today()
+    started = time.monotonic()
+    for name in names:
+        key = norm(name)
+        if not key or key in watched or key in excluded:
+            continue
+        hit = cache.get(key)
+        if hit and (hit["status"] != "none" or
+                    (today - datetime.date.fromisoformat(hit["checked"])).days < RECHECK_DAYS):
+            continue
+        if time.monotonic() - started > DISCOVER_BUDGET_SEC:
+            break
+        found = []
+        for ats in DISCOVER_ATS:
+            for slug in slug_candidates(name):
+                r = probe(ats, slug)
+                if r and r[0] > 0:
+                    found.append({"ats": ats, "slug": slug, "jobs": r[0], "ats_name": r[1]})
+                    break
+        # A board enrolls on its own only when its own stated name is the company's
+        # name. A slug match alone is not enough: "linkedin" on Lever is a test
+        # board full of dummy jobs, titled "LinkedIn Partner Sandbox - RSC testing".
+        sure = [f for f in found if f["ats_name"] and f["jobs"] >= MIN_JOBS and (
+                norm(f["ats_name"]) == key or (len(key) >= 4 and norm(f["ats_name"]) in
+                {key + x for x in ("inc", "ltd", "technologies", "english", "labs", "careers", "ai")}))]
+        status = "found" if len(sure) == 1 else ("review" if found else "none")
+        cache[key] = {"name": name, "status": status, "checked": today.isoformat(),
+                      "board": sure[0] if status == "found" else None, "candidates": found}
+    with open(DISCOVERY, "w") as f:
+        json.dump(cache, f, indent=1, sort_keys=True)
+    return cache
+
+
+def discovery_names(cfg):
+    """Names to probe: the discover list in feeds.json, every company folder in the vault,
+    and the Company column of Scout's weekly Board Sweep note.
+
+    Vault names come from pages Scout read, so they are used only as names to
+    probe: anything but plain name characters is refused, and a board still has
+    to state the name itself before it is scanned.
+    """
+    names = list(cfg.get("discover") or [])
+    companies = os.path.join(ROOT, "vault", "Companies")
+    if os.path.isdir(companies):
+        names += sorted(d for d in os.listdir(companies) if os.path.isdir(os.path.join(companies, d)))
+    sweep = os.path.join(ROOT, "vault", "Market Intel", "Board Sweep.md")
+    if os.path.isfile(sweep):
+        for line in open(sweep, encoding="utf-8", errors="replace"):
+            cells = [c.strip() for c in line.strip().strip("|").split("|")]
+            if len(cells) >= 2 and re.match(r"\d{4}-\d{2}-\d{2}$", cells[0]):
+                names.append(cells[1])
+    return [n for n in dict.fromkeys(names) if re.fullmatch(r"[\w .&'-]{2,40}", n)]
 # Readers that take their own argument from feeds.json instead of a slug.
 CUSTOM = {
     "jobsyn": lambda c: jobsyn(c["origin"], c["location"]),
     "tiktok": lambda c: tiktok(c["city"], c.get("location_code")),
     "apple": lambda c: apple(c["location"], c.get("locale", "en-us"), c["queries"]),
+    "workday": lambda c: workday(c["host"], c["tenant"], c["site"]),
+    "amazon": lambda c: amazon(c.get("country", "IRL")),
     "shopify": shopify,
     "etsy": etsy,
 }
 # Sources whose posting pages need JavaScript, so Scout can't open them to
 # verify. For target titles the posting text is saved instead.
-SAVE_TEXT = {"jobsyn", "tiktok"}
+SAVE_TEXT = {"jobsyn", "tiktok", "google"}
 
 
 def save_posting(company, job, text):
@@ -314,6 +542,28 @@ def save_posting(company, job, text):
     return f"state/feeds/postings/{key}.md"
 
 
+# Near misses, after JobFinderOS's responsibility classifier, but in plain code:
+# a role in scope whose title doesn't use the target words is read for the work
+# itself. Several distinct fraud and abuse terms in its description move it to
+# its own table. Only the matched terms are written, never the description.
+WORK_TERMS = {
+    "fraud": r"fraud", "abuse": r"\babuse", "trust & safety": r"trust (and|&) safety", "chargebacks": r"chargeback",
+    "disputes": r"\bdisputes?\b", "scams": r"\bscams?\b", "AML": r"\baml\b|anti[- ]money|money laundering",
+    "KYC": r"\bkyc\b", "account takeover": r"account takeover|\bato\b", "investigations": r"investigat",
+    "risk operations": r"risk operations|risk ops", "financial crime": r"financial crime|fincrime",
+    "enforcement": r"\benforcement\b", "bad actors": r"bad actors?", "integrity": r"\bintegrity\b",
+    "risk rules/models": r"risk (rules|models|signals|strategy)", "identity verification": r"identity verification",
+}
+WORK_RE = {label: re.compile(rx, re.I) for label, rx in WORK_TERMS.items()}
+NEAR_MISS_MIN = 3
+SENIORITY = re.compile(r"\b(senior|sr\.?|staff|principal|lead|head of|head|junior|jr\.?|associate|manager|director|"
+                       r"vp|i{1,3}|iv|v)\b|[,(\[].*$|-.*$", re.I)
+
+
+def work_hits(text):
+    return [label for label, rx in WORK_RE.items() if rx.search(text or "")]
+
+
 def in_scope(loc):
     if PLACE.search(loc):
         return True
@@ -321,7 +571,7 @@ def in_scope(loc):
 
 
 def main():
-    global PLACE, REMOTE_REGION, TARGET
+    global PLACE, REMOTE_REGION, TARGET, NOT_TARGET
     cfg = json.load(open(CONFIG))
     filters = cfg.get("filters") or {}
     if not filters.get("places"):
@@ -330,6 +580,9 @@ def main():
     PLACE = pattern(filters["places"])
     REMOTE_REGION = pattern(filters.get("remote_regions"))
     TARGET = pattern(filters.get("target_keywords"))
+    # Words that make a "safety" or "risk" title something else (workplace health
+    # and safety, credit risk...): such a title is listed with the rest, not on top.
+    NOT_TARGET = pattern(filters.get("not_target_keywords"))
     os.makedirs(OUT_DIR, exist_ok=True)
     seen_path = os.path.join(OUT_DIR, "seen.json")
     try:
@@ -343,9 +596,18 @@ def main():
             if f.endswith(".md"):
                 os.remove(os.path.join(POSTINGS_DIR, f))
 
+    # New boards found by name are scanned like the rest, marked "discovered".
+    cache = discover(cfg, discovery_names(cfg))
+    found = [v for v in cache.values() if v["status"] == "found"]
+    review = [v for v in cache.values() if v["status"] == "review"]
+    companies = cfg["companies"] + [
+        {"name": v["name"], "source": v["board"]["ats"], "slug": v["board"]["slug"], "tier": "discovered"}
+        for v in sorted(found, key=lambda v: v["name"])
+    ]
+
     rows, status = [], []
     started = time.monotonic()
-    for c in cfg["companies"]:
+    for c in companies:
         name, kind = c["name"], c["source"]
         if time.monotonic() - started > DEADLINE_SEC:
             status.append(f"| {name} | {kind} | SKIPPED: time cap reached | | |")
@@ -357,16 +619,25 @@ def main():
                 jobs = list(CUSTOM[kind](c))
             else:
                 jobs = list(SOURCES[kind](c["slug"]))
-            keep = [j for j in jobs if kind == "google" or in_scope(clean(j["location"]))]
+            keep = [j for j in jobs if kind in ("google", "workday") or in_scope(clean(j["location"]))]
             status.append(f"| {name} | {kind} | ok | {len(jobs)} | {len(keep)} |")
             for j in keep:
                 detail = j.pop("detail", "")
                 j = {k: clean(v) for k, v in j.items()}
                 j["company"] = name
-                j["target"] = bool(TARGET.search(j["title"] + " " + j["team"]))
+                j["target"] = bool(TARGET.search(j["title"] + " " + j["team"])) and not NOT_TARGET.search(j["title"])
                 j["new"] = j["url"] not in seen
+                if kind == "google" and j["target"]:
+                    try:
+                        detail = google_text(j["url"])
+                    except Exception:
+                        detail = ""
                 if kind in SAVE_TEXT and j["target"] and detail:
                     j["text"] = save_posting(name, j, detail)
+                if not j["target"] and detail:
+                    hits = work_hits(re.sub(r"<[^>]+>", " ", detail))
+                    if len(hits) >= NEAR_MISS_MIN:
+                        j["near"] = ", ".join(hits)
                 rows.append(j)
         except Exception as e:  # one broken feed must not stop the rest
             status.append(f"| {name} | {kind} | FAILED: {clean(type(e).__name__)} {clean(e)[:80]} | | |")
@@ -384,7 +655,17 @@ def main():
         return out
 
     targets = [r for r in rows if r["target"]]
-    others = [r for r in rows if not r["target"]]
+    near = [r for r in rows if not r["target"] and r.get("near")]
+    others = [r for r in rows if not r["target"] and not r.get("near")]
+    # A title phrase seen on near misses at 2+ companies is suggested as a new
+    # search word (JobFinderOS's learned terms). Suggested only: the keyword list
+    # in config/feeds.json stays the candidate's to change.
+    phrases = {}
+    for r in near:
+        ph = re.sub(r"\s+", " ", SENIORITY.sub("", r["title"])).strip(" ,-&").lower()
+        if len(ph.split()) >= 2:
+            phrases.setdefault(ph, set()).add(r["company"])
+    suggested = sorted(ph for ph, cos in phrases.items() if len(cos) >= 2)
     lines = [
         f"# Job feeds — {now}",
         "",
@@ -395,8 +676,25 @@ def main():
         f"## Trust & safety, fraud and risk titles in scope ({len(targets)}, {sum(r['new'] for r in targets)} new)",
         *table(targets),
         "",
+        f"## Fraud work in the description, not the title ({len(near)}, {sum(r['new'] for r in near)} new)",
+        f"Roles whose descriptions use {NEAR_MISS_MIN}+ distinct fraud and abuse terms. Terms matched in the Team column.",
+        *table([{**r, "team": r["near"]} for r in near]),
+        "",
+        "Title words seen on these at 2+ companies, worth adding to target_keywords: "
+        + (", ".join(suggested) if suggested else "none yet"),
+        "",
         f"## Every other role in scope ({len(others)}), for renames",
         *table(others),
+        "",
+        f"## Boards found by name ({len(found)} scanned, {len(review)} to check by hand)",
+        "Found = the ATS itself names the company (API or board page title) on a board of 3+ jobs.",
+        "To check = a board answered but the match is not sure; it is NOT scanned. Add it to",
+        "config/feeds.json by hand once confirmed, or ignore it.",
+        "| Company | Status | Board(s) |",
+        "|---|---|---|",
+        *[f"| {clean(v['name'])} | {v['status']} | " + "; ".join(
+            f"{b['ats']}/{b['slug']} ({b['jobs']} jobs{', named ' + clean(b['ats_name']) if b['ats_name'] else ''})"
+            for b in v["candidates"]) + " |" for v in sorted(found + review, key=lambda v: v["name"])],
         "",
         "## Feed status",
         "| Company | Source | Result | All roles | In scope |",
@@ -410,7 +708,7 @@ def main():
         json.dump(sorted(seen | {r["url"] for r in rows}), f)
 
     failed = sum("FAILED" in s or "SKIPPED" in s for s in status)
-    print(f"feeds: {len(cfg['companies'])} companies, {failed} failed, {len(rows)} roles in scope, {len(targets)} target titles")
+    print(f"feeds: {len(companies)} companies ({len(found)} discovered), {failed} failed, {len(rows)} roles in scope, {len(targets)} target titles")
     return 0
 
 

@@ -47,15 +47,24 @@ them to do any of this; work it out yourself:
 - `filters.places`: their acceptable cities and country from question 4.
   `remote_regions`: the regions a remote role must cover for them.
   `target_keywords`: the words their target role titles use, from question 2.
+  `not_target_keywords`: look-alike words to keep off the top table (for a
+  trust and safety search, "health and safety"). `exclude`: every excluded
+  company from the profile.
 - One entry per target company, never an excluded one. For each, find its
   job feed: try `boards-api.greenhouse.io/v1/boards/<slug>/jobs`,
   `api.ashbyhq.com/posting-api/job-board/<slug>`,
   `api.lever.co/v0/postings/<slug>?mode=json` and
-  `apply.workable.com/api/v1/widget/accounts/<slug>` with `WebFetch`, guessing
+  `apply.workable.com/api/v1/widget/accounts/<slug>` and
+  `api.smartrecruiters.com/v1/companies/<slug>/postings` with `WebFetch`, guessing
   the slug from the company name and its careers page. Keep the one that
-  returns jobs. Google, Meta, TikTok, Apple, Shopify and Etsy have their own
+  returns jobs. If its careers page links to `myworkdayjobs.com`, add a
+  `workday` entry from that address (the template's `_how` note shows how).
+  Google, Meta, TikTok, Apple, Amazon, Shopify and Etsy have their own
   readers: copy their template entries and set the location fields as the
   template's `_how` notes say.
+- `discover`: 30 to 60 more employers in their field and places that
+  aren't in the list yet, names only. Don't look up their boards: the
+  morning fetch finds and checks them itself, and keeps finding more.
 - A company with none of these stays out of the file. Name it in the
   profile's URL table so Scout searches it by hand, and tell them it isn't
   covered automatically.

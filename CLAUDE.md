@@ -188,10 +188,28 @@ Before Claude starts, `scripts/run-daily.sh` runs `scripts/fetch-feeds.py`:
 plain code, no model. It pulls the public job feeds of the companies in
 `config/feeds.json` (written by `/onboard`), keeps roles in the places that
 file names, and writes only titles, locations, dates and links to
-`state/feeds/latest.md`, which Scout reads first. For Meta and TikTok, whose
-posting pages need JavaScript, it also saves the posting text of target
-titles to `state/feeds/postings/`, so Scout can verify them. A failed fetch
+`state/feeds/latest.md`, which Scout reads first. Besides the public ATS
+feeds it reads Workday career sites (PayPal, Salesforce, Mastercard, Citi
+and others, cut to the configured places by the site's own location
+filter), Amazon, and
+the custom sites of Google, Meta, TikTok, Apple, Shopify and Etsy. For
+Meta, TikTok and Google, whose posting pages WebFetch can't read, it also
+saves the posting text of target titles to `state/feeds/postings/`, so
+Scout can verify them. Where a feed carries descriptions, a role whose
+title misses the target words but whose description uses three or more
+distinct fraud and abuse terms is listed in its own table; only the
+matched terms are written, never the description. A failed fetch
 is logged and the scan still runs.
+
+It also finds new boards on its own (adapted from JobFinderOS): every name
+in `config/feeds.json`'s `discover` list and every `vault/Companies/`
+folder is probed on Greenhouse, Ashby, Lever and SmartRecruiters. A board
+joins the scan only when the board itself states that company's name;
+anything less sure is listed under "Boards found by name" for a hand
+check and is not scanned. Names in `filters.exclude` are never probed.
+Scout adds names too: once a week it searches the web for employers the
+list doesn't watch with a live target posting, and writes them to
+`vault/Market Intel/Board Sweep.md`, which the next fetch probes.
 
 `scripts/run-daily.sh` then invokes `/jobs-daily` with:
 

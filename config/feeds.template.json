@@ -1,30 +1,107 @@
 {
- "_note": "Companies pulled by scripts/fetch-feeds.py before each scheduled scan. /onboard writes your real config/feeds.json from this template. Never add a company your profile excludes.",
- "_how": {
-  "filters.places": "Regex fragments, matched case-insensitively against each role's location. A role whose location matches is kept.",
-  "filters.remote_regions": "A role marked remote is kept when its location also matches one of these.",
-  "filters.target_keywords": "A title matching one of these goes to the top table. Every other role in scope is still listed, for renames.",
-  "greenhouse / ashby / lever / workable": "Set slug to the company's board name, the part after the ATS domain in its job board address.",
-  "google": "location is a place name as Google's careers search takes it; queries are search terms.",
-  "jobsyn": "Meta's jobs, read through dejobs.org, the job network Meta publishes to. location is a city or country name.",
-  "tiktok": "city is a city name as TikTok writes it. The script looks up TikTok's own city code itself.",
-  "apple": "location is Apple's code, country name then ISO code, e.g. united-kingdom-GBR. locale e.g. en-gb.",
-  "shopify / etsy": "No settings. The script reads the company's whole job list and keeps what matches your places."
- },
- "filters": {
-  "places": ["\\blondon\\b", "united kingdom", "\\bUK\\b"],
-  "remote_regions": ["\\b(emea|europe|uk)\\b"],
-  "target_keywords": ["analyst", "manager"]
- },
- "companies": [
-  {"name": "OpenAI", "source": "ashby", "slug": "openai", "tier": "1"},
-  {"name": "Airbnb", "source": "greenhouse", "slug": "airbnb", "tier": "2"},
-  {"name": "Hugging Face", "source": "workable", "slug": "huggingface", "tier": "2"},
-  {"name": "Google", "source": "google", "location": "London", "queries": ["analyst", "manager"], "tier": "2"},
-  {"name": "Meta", "source": "jobsyn", "origin": "metacareers.dejobs.org", "location": "London", "tier": "2"},
-  {"name": "TikTok", "source": "tiktok", "city": "London", "tier": "2"},
-  {"name": "Apple", "source": "apple", "location": "united-kingdom-GBR", "locale": "en-gb", "queries": ["analyst", "manager"], "tier": "2"},
-  {"name": "Shopify", "source": "shopify", "tier": "2"},
-  {"name": "Etsy", "source": "etsy", "tier": "2"}
- ]
+  "_note": "Companies pulled by scripts/fetch-feeds.py before each scheduled scan. /onboard writes your real config/feeds.json from this template. Never add a company your profile excludes.",
+  "_how": {
+    "filters.places": "Regex fragments, matched case-insensitively against each role's location. A role whose location matches is kept.",
+    "filters.remote_regions": "A role marked remote is kept when its location also matches one of these.",
+    "filters.target_keywords": "A title matching one of these goes to the top table. Every other role in scope is still listed, for renames.",
+    "google": "location is a place name as Google's careers search takes it; queries are search terms.",
+    "jobsyn": "Meta's jobs, read through dejobs.org, the job network Meta publishes to. location is a city or country name.",
+    "tiktok": "city is a city name as TikTok writes it. The script looks up TikTok's own city code itself.",
+    "apple": "location is Apple's code, country name then ISO code, e.g. united-kingdom-GBR. locale e.g. en-gb.",
+    "shopify / etsy": "No settings. The script reads the company's whole job list and keeps what matches your places.",
+    "greenhouse / ashby / lever / workable / smartrecruiters": "Set slug to the company's board name, the part after the ATS domain in its job board address.",
+    "filters.not_target_keywords": "A title matching one of these stays out of the top table even if it hits a target word (e.g. health and safety when you want trust and safety).",
+    "filters.exclude": "Companies never probed or scanned. Copy the profile's excluded companies here.",
+    "discover": "Company names only. Each morning the script looks for their public job board and scans it once the board itself states that name. Unsure matches are listed for a hand check.",
+    "workday": "Companies whose careers site is on myworkdayjobs.com. From an address like https://acme.wd5.myworkdayjobs.com/en-US/External: host acme.wd5.myworkdayjobs.com, tenant acme, site External. The script keeps jobs under the site's own location filters that match your places.",
+    "amazon": "country is the ISO 3-letter code, e.g. IRL or GBR."
+  },
+  "filters": {
+    "places": [
+      "\\blondon\\b",
+      "united kingdom",
+      "\\bUK\\b"
+    ],
+    "remote_regions": [
+      "\\b(emea|europe|uk)\\b"
+    ],
+    "target_keywords": [
+      "analyst",
+      "manager"
+    ],
+    "exclude": [],
+    "not_target_keywords": []
+  },
+  "companies": [
+    {
+      "name": "OpenAI",
+      "source": "ashby",
+      "slug": "openai",
+      "tier": "1"
+    },
+    {
+      "name": "Airbnb",
+      "source": "greenhouse",
+      "slug": "airbnb",
+      "tier": "2"
+    },
+    {
+      "name": "Hugging Face",
+      "source": "workable",
+      "slug": "huggingface",
+      "tier": "2"
+    },
+    {
+      "name": "Google",
+      "source": "google",
+      "location": "London",
+      "queries": [
+        "analyst",
+        "manager"
+      ],
+      "tier": "2"
+    },
+    {
+      "name": "Meta",
+      "source": "jobsyn",
+      "origin": "metacareers.dejobs.org",
+      "location": "London",
+      "tier": "2"
+    },
+    {
+      "name": "TikTok",
+      "source": "tiktok",
+      "city": "London",
+      "tier": "2"
+    },
+    {
+      "name": "Apple",
+      "source": "apple",
+      "location": "united-kingdom-GBR",
+      "locale": "en-gb",
+      "queries": [
+        "analyst",
+        "manager"
+      ],
+      "tier": "2"
+    },
+    {
+      "name": "Shopify",
+      "source": "shopify",
+      "tier": "2"
+    },
+    {
+      "name": "Etsy",
+      "source": "etsy",
+      "tier": "2"
+    },
+    {
+      "name": "Amazon",
+      "source": "amazon",
+      "country": "GBR",
+      "tier": "2"
+    }
+  ],
+  "discover": [],
+  "_note_discover": "Company names to probe for a public Greenhouse, Ashby, Lever or SmartRecruiters board. A board joins the scan only when it states that company's name; unsure ones are listed for a hand check. Vault company folders are probed too. Put excluded companies in filters.exclude so they are never probed."
 }

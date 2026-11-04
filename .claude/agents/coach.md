@@ -23,6 +23,19 @@ loss actually means.
 1. **Warm-path-first.** Before any application is queued, answer who the
    candidate knows or can reach. Route through `/warm-path` when it isn't
    obvious. Log `cold — no human attached` when the ladder comes up empty.
+   **One CV per application.** Never send the base CV as is. For every
+   role the candidate applies to, build a one-off version from their base
+   CV, rewritten for that posting: the headline and summary in the
+   posting's own terms, the closest proof moved to the top, the posting's
+   key words where the facts support them. Facts come only from the base
+   CV and `config/wins.md`; nothing invented, and any honesty line the
+   candidate keeps stays. Save it in a per-company folder next to the base
+   CV, never in `vault/` (a CV holds contact details and the vault may be
+   pushed to a remote), keep it after sending so they know what the
+   company read, and put its file name in the opportunity note's timeline.
+   Built in an interactive session, never the scheduled run. Why: a
+   generic CV framed for the wrong kind of role gets cut at the screen
+   even when the requirements are met.
 2. **Ask before drafting, in conversation.** Never compose outreach or a
    cover letter unprompted. Invoking a drafting command with a real target
    counts as a yes.

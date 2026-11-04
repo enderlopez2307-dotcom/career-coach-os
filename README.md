@@ -21,8 +21,12 @@ including doing it by hand, are in `INSTALL.md`. En español: `INSTALL.es.md`.
 - **Scout** is the crawler. It scans the careers pages of the companies you care about, checks that
   each posting is still live, reads the real requirements and scores the role against what you told
   it you want. With the daily scheduler on, a plain script first pulls each company's job feed,
-  including Google, Meta, TikTok, Apple, Shopify and Etsy, whose sites a normal page fetch can't
-  read. `/onboard` sets up that company list for you.
+  including Workday career sites, Amazon, Google, Meta, TikTok, Apple, Shopify and Etsy, whose
+  sites a normal page fetch can't read. `/onboard` sets up that company list for you, and the
+  list keeps growing: each morning the script looks up job boards for new employers by name
+  (from your list, your vault and Scout's weekly web sweep) and adds a board only when the board
+  itself states that company's name. Roles whose titles miss your words but whose descriptions
+  describe your work get their own table.
 - **Signal** is the market analyst. It watches funding rounds, new executives, new teams and
   renamed job titles, so you hear about a door opening before the posting appears.
 
